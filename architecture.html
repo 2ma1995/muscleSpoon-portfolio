@@ -25,7 +25,7 @@
     --node-infra: #eab308;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; overflow: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
   /* ── Header ── */
   header {
@@ -49,7 +49,7 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
   /* ── Main Layout ── */
-  .layout { display: flex; height: calc(100vh - 115px); }
+  .layout { display: flex; flex: 1; min-height: 0; }
 
   /* ── Diagram Panel ── */
   .diagram-panel { flex: 1; overflow: auto; padding: 30px 30px 60px; position: relative; }
@@ -571,7 +571,21 @@ function makePath(fromId, toId) {
 function drawConnections(flow) {
   const svg = document.getElementById('svgLayer');
   svg.innerHTML = '';
-  
+
+  // Arrowhead marker defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = `
+    <marker id="arrow-active" viewBox="0 0 10 7" refX="9" refY="3.5"
+            markerWidth="10" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#eab308" />
+    </marker>
+    <marker id="arrow-base" viewBox="0 0 10 7" refX="9" refY="3.5"
+            markerWidth="8" markerHeight="5.6" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="rgba(255,255,255,0.12)" />
+    </marker>
+  `;
+  svg.appendChild(defs);
+
   // 1) Draw ALL base connections (very faint)
   BASE_CONNS.forEach(([f, t]) => {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -579,9 +593,10 @@ function drawConnections(flow) {
     const isBack = NODES_MAP[f].col > NODES_MAP[t].col;
     path.setAttribute('class', 'conn-base');
     if (isBack) path.setAttribute('stroke-dasharray', '4,3');
+    path.setAttribute('marker-end', 'url(#arrow-base)');
     svg.appendChild(path);
   });
-  
+
   // 2) Draw active flow connections on top
   if (flow) {
     const activePaths = [];
@@ -590,6 +605,7 @@ function drawConnections(flow) {
       path.setAttribute('d', makePath(f, t));
       const isBack = NODES_MAP[f].col > NODES_MAP[t].col;
       path.setAttribute('class', isBack ? 'conn-active-back' : 'conn-active');
+      path.setAttribute('marker-end', 'url(#arrow-active)');
       svg.appendChild(path);
       activePaths.push(path);
 
@@ -597,24 +613,6 @@ function drawConnections(flow) {
       path.style.strokeDasharray = len;
       path.style.strokeDashoffset = len;
       path.style.animation = `dash 0.8s ease forwards`;
-    });
-
-    // Add arrowheads to active connections
-    flow.conns.forEach(([f, t]) => {
-      const to = NODES_MAP[t];
-      const from = NODES_MAP[f];
-      let anchor;
-      if (from.col < to.col) anchor = getAnchor(t, 'left');
-      else if (from.col > to.col) anchor = getAnchor(t, 'right');
-      else anchor = getAnchor(t, from.row < to.row ? 'top' : 'bottom');
-
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', anchor.x);
-      circle.setAttribute('cy', anchor.y);
-      circle.setAttribute('r', '4');
-      circle.setAttribute('fill', 'var(--highlight)');
-      circle.style.filter = 'drop-shadow(0 0 4px rgba(234,179,8,0.5))';
-      svg.appendChild(circle);
     });
 
     // Add step number badges at midpoint of each active path

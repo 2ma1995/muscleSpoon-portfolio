@@ -24,47 +24,47 @@
 ## ⚙️ 기술 스택
 
 ### Backend
-![Java](https://img.shields.io/badge/Java_21-007396?style=flat&logo=java&logoColor=white)
+![Java](https://img.shields.io/badge/Java_17-007396?style=flat&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5-6DB33F?style=flat&logo=springboot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=flat&logo=springsecurity&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security_6-6DB33F?style=flat&logo=springsecurity&logoColor=white)
 ![JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=flat)
 ![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=flat)
 
 ### Frontend
-![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=flat&logo=nextdotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript_5-3178C6?style=flat&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=flat&logo=pwa&logoColor=white)
 
 ### Infrastructure
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
-![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-F80000?style=flat&logo=oracle&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL_8.0-4479A1?style=flat&logo=mysql&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=flat&logo=googlecloud&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat&logo=cloudflare&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase_FCM-FFCA28?style=flat&logo=firebase&logoColor=black)
 
 <br>
 
 ## 🏗️ 아키텍처
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                    Client Layer                      │
-│  관리자 웹 (Next.js 14)  │  회원 앱 (Next.js + PWA)  │
+│  관리자 웹 (Next.js 16)  │  회원 앱 (Next.js + PWA)  │
 └──────────────┬──────────────────────┬───────────────┘
                │  REST API / JWT       │  WebSocket
                ▼                       ▼
 ┌─────────────────────────────────────────────────────┐
-│              Spring Boot 3.5 (Java 21)              │
-│  AuthController  BookingController  LessonController │
-│  MemberController  StatisticsController  ...        │
+│              Spring Boot 3.5 (Java 17)              │
+│  AuthController  BookingController  ChatController   │
+│  MemberController  GymController  ...               │
 │                                                     │
 │              Spring Security 6 (JWT)                │
 └──────────────────────┬──────────────────────────────┘
                        │
           ┌────────────┴────────────┐
           ▼                         ▼
-   PostgreSQL (JPA)          Firebase FCM
-   (멀티테넌트: gym_id)      (푸시 알림)
+    MySQL 8.0 (JPA)          Firebase FCM
+    (멀티테넌트: gym_id)      (푸시 알림)
 ```
 
 ### 멀티테넌트 설계
@@ -86,7 +86,9 @@
 | **락커 관리** | 락커 배정/반납, 만료 알림 |
 | **통계** | 월별 매출, 회원 증감, 수업 참여율 차트 |
 | **공지사항** | 회원 공지 작성 및 푸시 알림 발송 |
-| **설정** | 강사 관리, 수업 템플릿, 운영 정책, 회원권 요금제 설정 |
+| **채팅** | 회원 ↔ 관리자 실시간 채팅 (WebSocket) |
+| **설정** | 강사 관리, 수업/회원권/부가상품 템플릿, 운영 정책 설정 |
+| **플랫폼 (슈퍼관리자)** | 전체 헬스장(테넌트) 생성/계약 관리, 플랫폼 공지 메시지 |
 
 ### 회원 앱 (PWA)
 
@@ -151,6 +153,7 @@ muscle-spoon/
     └── app/
         ├── (admin)/      # 관리자 페이지 (dashboard, lessons, members ...)
         ├── member/       # 회원 앱
+        ├── super-admin/  # 플랫폼 관리
         └── login/        # 로그인 (관리자 / 회원 분리)
 ```
 

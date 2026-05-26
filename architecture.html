@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuscleSpoon — Architecture Map</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2538;
+    --border: #2a3045;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --accent: #38bdf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0f1117 0%, #1a1f35 50%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(56,189,248,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-grid { display: flex; align-items: center; gap: 20px; position: relative; }
+  .header-logo {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  header h1 { font-size: 28px; font-weight: 700; letter-spacing: -.5px; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .badge {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid;
+  }
+
+  /* ── Nav Tabs ── */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  nav button {
+    background: none; border: none; color: var(--muted);
+    padding: 14px 20px; font-size: 14px; font-weight: 500;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all .2s;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Main Layout ── */
+  main { padding: 32px 48px; max-width: 1400px; margin: 0 auto; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px; }
+
+  /* ── Overview ── */
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .stat-card .num { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat-card .label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  /* Architecture Diagram */
+  .arch-diagram {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px; margin-bottom: 32px;
+  }
+  .arch-row { display: flex; gap: 16px; align-items: stretch; margin-bottom: 12px; }
+  .arch-row:last-child { margin-bottom: 0; }
+  .arch-box {
+    flex: 1; border-radius: 10px; padding: 14px 18px;
+    border: 1px solid; position: relative;
+  }
+  .arch-box .title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .arch-box .desc { font-size: 12px; opacity: .7; line-height: 1.5; }
+  .arch-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 18px; padding: 0 4px;
+  }
+  .arch-layer-label {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .1em;
+    display: flex; align-items: center; padding: 0 8px;
+  }
+
+  /* ── API Endpoints ── */
+  .search-bar {
+    width: 100%; padding: 10px 16px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    outline: none; margin-bottom: 20px;
+  }
+  .search-bar:focus { border-color: var(--accent); }
+  .domain-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .filter-btn {
+    padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); transition: all .15s;
+  }
+  .filter-btn.active, .filter-btn:hover { color: #fff; border-color: transparent; }
+
+  .controller-group { margin-bottom: 20px; }
+  .controller-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 8px;
+    cursor: pointer; user-select: none;
+    background: var(--bg3); border: 1px solid var(--border);
+  }
+  .controller-header:hover { border-color: var(--accent); }
+  .controller-header .name { font-weight: 700; font-size: 15px; }
+  .controller-header .base { font-size: 12px; color: var(--muted); font-family: monospace; }
+  .controller-header .chevron { margin-left: auto; color: var(--muted); transition: transform .2s; }
+  .controller-header.open .chevron { transform: rotate(90deg); }
+  .domain-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .endpoint-list { display: none; padding: 4px 0 4px 16px; }
+  .endpoint-list.open { display: block; }
+  .endpoint-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: 6px;
+    font-size: 13px; transition: background .1s;
+  }
+  .endpoint-row:hover { background: var(--bg3); }
+  .method {
+    display: inline-block; min-width: 52px; text-align: center;
+    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;
+    font-family: monospace;
+  }
+  .m-GET { background: #0c4a6e; color: #38bdf8; }
+  .m-POST { background: #14532d; color: #4ade80; }
+  .m-PUT { background: #713f12; color: #fbbf24; }
+  .m-PATCH { background: #4a044e; color: #e879f9; }
+  .m-DELETE { background: #450a0a; color: #f87171; }
+  .m-WS { background: #1e1b4b; color: #a5b4fc; }
+  .ep-path { font-family: monospace; color: var(--accent); flex: 1; }
+  .ep-desc { color: var(--muted); font-size: 12px; }
+
+  /* ── Entities ── */
+  .entity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .entity-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .entity-card .ename { font-weight: 700; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .entity-card .fields { display: flex; flex-wrap: wrap; gap: 6px; }
+  .field-tag {
+    font-family: monospace; font-size: 11px; padding: 2px 8px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--muted);
+  }
+  .field-tag.key { border-color: #38bdf850; color: var(--accent); }
+
+  /* ── Frontend ── */
+  .pages-table { width: 100%; border-collapse: collapse; }
+  .pages-table th { text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .pages-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .pages-table tr:last-child td { border-bottom: none; }
+  .pages-table tr:hover td { background: var(--bg3); }
+  .route { font-family: monospace; color: var(--accent); font-size: 12px; }
+  .role-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .role-MEMBER { background: #0c4a6e20; color: #38bdf8; border: 1px solid #38bdf830; }
+  .role-STAFF { background: #14532d20; color: #4ade80; border: 1px solid #4ade8030; }
+  .role-SUPER_ADMIN { background: #450a0a20; color: #f87171; border: 1px solid #f8717130; }
+  .role-public { background: #71391220; color: #fbbf24; border: 1px solid #fbbf2430; }
+
+  .comp-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .comp-tag {
+    padding: 5px 12px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: 12px; font-family: monospace; color: var(--text);
+  }
+
+  /* ── Tech Stack ── */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .tech-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .tech-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .tech-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tech-row:last-child { border-bottom: none; }
+  .tech-key { font-size: 13px; color: var(--muted); }
+  .tech-val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  @media (max-width: 768px) {
+    header, nav, main { padding-left: 20px; padding-right: 20px; }
+    .arch-row { flex-direction: column; }
+    .arch-layer-label { writing-mode: horizontal-tb; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-grid">
+    <div class="header-logo">💪</div>
+    <div>
+      <h1><span>MuscleSpoon</span> Architecture</h1>
+      <p>헬스장 통합 관리 SaaS — Full-Stack Architecture Map</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge" style="color:#38bdf8;border-color:#38bdf840;background:#38bdf810">Java 21</span>
+    <span class="badge" style="color:#4ade80;border-color:#4ade8040;background:#4ade8010">Spring Boot 3.5</span>
+    <span class="badge" style="color:#f8f8f8;border-color:#ffffff30;background:#ffffff10">Next.js 14</span>
+    <span class="badge" style="color:#60a5fa;border-color:#60a5fa40;background:#60a5fa10">TypeScript 5</span>
+    <span class="badge" style="color:#a78bfa;border-color:#a78bfa40;background:#a78bfa10">PostgreSQL</span>
+    <span class="badge" style="color:#fb923c;border-color:#fb923c40;background:#fb923c10">Oracle Cloud</span>
+    <span class="badge" style="color:#facc15;border-color:#facc1540;background:#facc1510">Firebase FCM</span>
+    <span class="badge" style="color:#34d399;border-color:#34d39940;background:#34d39910">WebSocket</span>
+    <span class="badge" style="color:#f472b6;border-color:#f472b640;background:#f472b610">JWT</span>
+    <span class="badge" style="color:#94a3b8;border-color:#94a3b840;background:#94a3b810">PWA</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('overview', this)">Overview</button>
+  <button onclick="showTab('api', this)">API Endpoints</button>
+  <button onclick="showTab('entities', this)">Entities</button>
+  <button onclick="showTab('frontend', this)">Frontend</button>
+  <button onclick="showTab('techstack', this)">Tech Stack</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
+<div class="section active" id="section-overview">
+
+  <div class="overview-grid">
+    <div class="stat-card"><div class="num" id="stat-controllers">29</div><div class="label">REST Controllers</div></div>
+    <div class="stat-card"><div class="num" id="stat-endpoints">—</div><div class="label">API Endpoints</div></div>
+    <div class="stat-card"><div class="num" id="stat-entities">—</div><div class="label">JPA Entities</div></div>
+    <div class="stat-card"><div class="num" id="stat-services">—</div><div class="label">Service Classes</div></div>
+    <div class="stat-card"><div class="num" id="stat-pages">—</div><div class="label">Frontend Pages</div></div>
+    <div class="stat-card"><div class="num">14</div><div class="label">Business Domains</div></div>
+  </div>
+
+  <div class="arch-diagram">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px">System Architecture</div>
+
+    <!-- Client Layer -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:#0f1e35;border-color:#1d4ed840;flex:1.2">
+        <div class="title" style="color:#60a5fa">🖥️ Admin Web App</div>
+        <div class="desc">Next.js 14 + TypeScript<br>관리자 대시보드, 수업/회원/PT/통계 관리<br>Tailwind CSS · shadcn/ui · Recharts</div>
+      </div>
+      <div class="arch-box" style="background:#0f2318;border-color:#16a34a40;flex:1">
+        <div class="title" style="color:#4ade80">📱 Member App (PWA)</div>
+        <div class="desc">Next.js 14 + Service Worker<br>수업 예약, 오늘의 운동, 마이페이지<br>DOMPurify · FCM Push</div>
+      </div>
+    </div>
+
+    <div class="arch-row" style="justify-content:center;gap:40px;margin:4px 0">
+      <div style="text-align:center;color:var(--muted);font-size:12px">
+        <div style="font-family:monospace;color:var(--accent)">REST API / JWT</div>
+        <div style="font-size:18px;margin-top:2px">↕</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);font-size:12px">
+        <div style="font-family:monospace;color:#a5b4fc">WebSocket (STOMP)</div>
+        <div style="font-size:18px;margin-top:2px">↕</div>
+      </div>
+    </div>
+
+    <!-- API Layer -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:#1a1230;border-color:#7c3aed40">
+        <div class="title" style="color:#a78bfa">🔐 Spring Security 6</div>
+        <div class="desc">JWT Filter · Role-based Access Control<br>SUPER_ADMIN / STAFF / MEMBER<br>TokenVersion 강제 로그아웃</div>
+      </div>
+      <div class="arch-box" style="background:#1a1230;border-color:#7c3aed40">
+        <div class="title" style="color:#a78bfa">⚙️ Spring Boot 3.5 (Java 21)</div>
+        <div class="desc">29 REST Controllers · 29 Services<br>멀티테넌트: 모든 쿼리에 gym_id 필터<br>Bucket4j Rate Limiting</div>
+      </div>
+    </div>
+
+    <div class="arch-row" style="justify-content:center;gap:80px;margin:4px 0">
+      <div style="text-align:center;color:var(--muted);font-size:12px">
+        <div style="font-size:18px">↕</div>
+        <div style="font-family:monospace">JPA / HQL</div>
+      </div>
+      <div style="text-align:center;color:var(--muted);font-size:12px">
+        <div style="font-size:18px">↕</div>
+        <div style="font-family:monospace">HTTP / FCM SDK</div>
+      </div>
+    </div>
+
+    <!-- Data Layer -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:#1e1330;border-color:#9333ea40">
+        <div class="title" style="color:#c084fc">🗄️ PostgreSQL</div>
+        <div class="desc">28 Tables · gym_id 컬럼으로 테넌트 격리<br>Flyway 마이그레이션<br>Oracle Cloud Compute 호스팅</div>
+      </div>
+      <div class="arch-box" style="background:#1a1a00;border-color:#ca8a0440">
+        <div class="title" style="color:#fbbf24">🔔 Firebase FCM</div>
+        <div class="desc">Web Push Notification<br>VAPID 키 기반 구독 관리<br>수업/공지/운동 알림</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Domain Map -->
+  <div class="card">
+    <div class="card-title">Business Domains</div>
+    <div id="domain-map" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ API ═══════════════════════ -->
+<div class="section" id="section-api">
+  <input class="search-bar" type="text" placeholder="🔍  endpoint / description 검색..." oninput="filterEndpoints(this.value)" />
+  <div class="domain-filter" id="domain-filter"></div>
+  <div id="controllers-list"></div>
+</div>
+
+<!-- ═══════════════════════ ENTITIES ═══════════════════════ -->
+<div class="section" id="section-entities">
+  <div style="margin-bottom:20px;color:var(--muted);font-size:14px">총 <strong style="color:var(--text)" id="entity-count"></strong>개의 JPA 엔티티 — 모든 테이블은 gym_id로 테넌트 격리됩니다.</div>
+  <div class="entity-grid" id="entity-grid"></div>
+</div>
+
+<!-- ═══════════════════════ FRONTEND ═══════════════════════ -->
+<div class="section" id="section-frontend">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div>
+      <div class="card">
+        <div class="card-title">Pages & Routes</div>
+        <table class="pages-table" id="pages-table">
+          <thead><tr><th>Route</th><th>Page</th><th>Role</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="card">
+        <div class="card-title">UI Components</div>
+        <div class="comp-grid" id="comp-grid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Frontend Architecture</div>
+        <div style="font-size:13px;line-height:1.9;color:var(--muted)">
+          <div>📁 <strong style="color:var(--text)">app/(admin)/</strong> — 관리자 전용 레이아웃 + 9개 페이지</div>
+          <div>📁 <strong style="color:var(--text)">app/member/</strong> — 회원 앱 (PWA)</div>
+          <div>📁 <strong style="color:var(--text)">app/super-admin/</strong> — 플랫폼 관리</div>
+          <div>📁 <strong style="color:var(--text)">components/ui/</strong> — 재사용 컴포넌트</div>
+          <div>📁 <strong style="color:var(--text)">lib/api.ts</strong> — 중앙화된 API 레이어</div>
+          <div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+            <div style="color:var(--text);font-weight:600;margin-bottom:6px">Key Implementation Points</div>
+            <div>• DatePicker / WeekPicker 직접 구현 (라이브러리 없음)</div>
+            <div>• DOMPurify HTML 산화 후 dangerouslySetInnerHTML</div>
+            <div>• @stomp/stompjs 실시간 채팅</div>
+            <div>• Service Worker + FCM 푸시 알림 (PWA)</div>
+            <div>• JWT 토큰 저장 분리 (관리자/회원 localStorage key)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TECH STACK ═══════════════════════ -->
+<div class="section" id="section-techstack">
+  <div class="tech-grid">
+    <div class="tech-section">
+      <h3>🔧 Backend</h3>
+      <div class="tech-row"><span class="tech-key">Language</span><span class="tech-val">Java 21</span></div>
+      <div class="tech-row"><span class="tech-key">Framework</span><span class="tech-val">Spring Boot 3.5.0</span></div>
+      <div class="tech-row"><span class="tech-key">Security</span><span class="tech-val">Spring Security 6 + JWT</span></div>
+      <div class="tech-row"><span class="tech-key">Database</span><span class="tech-val">PostgreSQL + JPA + Flyway</span></div>
+      <div class="tech-row"><span class="tech-key">Realtime</span><span class="tech-val">WebSocket (STOMP)</span></div>
+      <div class="tech-row"><span class="tech-key">Push</span><span class="tech-val">Firebase FCM + VAPID</span></div>
+      <div class="tech-row"><span class="tech-key">Rate Limit</span><span class="tech-val">Bucket4j 8.10.1</span></div>
+      <div class="tech-row"><span class="tech-key">Build</span><span class="tech-val">Maven</span></div>
+    </div>
+    <div class="tech-section">
+      <h3>🎨 Frontend</h3>
+      <div class="tech-row"><span class="tech-key">Framework</span><span class="tech-val">Next.js 14 (App Router)</span></div>
+      <div class="tech-row"><span class="tech-key">Language</span><span class="tech-val">TypeScript 5</span></div>
+      <div class="tech-row"><span class="tech-key">Styling</span><span class="tech-val">Tailwind CSS 4</span></div>
+      <div class="tech-row"><span class="tech-key">UI Library</span><span class="tech-val">shadcn/ui + Base UI</span></div>
+      <div class="tech-row"><span class="tech-key">Charts</span><span class="tech-val">Recharts</span></div>
+      <div class="tech-row"><span class="tech-key">WebSocket</span><span class="tech-val">@stomp/stompjs</span></div>
+      <div class="tech-row"><span class="tech-key">Sanitize</span><span class="tech-val">DOMPurify</span></div>
+      <div class="tech-row"><span class="tech-key">PWA</span><span class="tech-val">Service Worker + Manifest</span></div>
+    </div>
+    <div class="tech-section">
+      <h3>☁️ Infrastructure</h3>
+      <div class="tech-row"><span class="tech-key">Cloud</span><span class="tech-val">Oracle Cloud (OCI)</span></div>
+      <div class="tech-row"><span class="tech-key">Reverse Proxy</span><span class="tech-val">Nginx</span></div>
+      <div class="tech-row"><span class="tech-key">Notifications</span><span class="tech-val">Firebase FCM</span></div>
+      <div class="tech-row"><span class="tech-key">TLS</span><span class="tech-val">Let's Encrypt / HTTPS</span></div>
+      <div class="tech-row"><span class="tech-key">Architecture</span><span class="tech-val">Multi-tenant (gym_id)</span></div>
+    </div>
+    <div class="tech-section">
+      <h3>🔐 Auth & Security</h3>
+      <div class="tech-row"><span class="tech-key">Token</span><span class="tech-val">JWT (jjwt 0.12.6)</span></div>
+      <div class="tech-row"><span class="tech-key">Strategy</span><span class="tech-val">Access + Refresh Token</span></div>
+      <div class="tech-row"><span class="tech-key">Invalidation</span><span class="tech-val">TokenVersion (강제 로그아웃)</span></div>
+      <div class="tech-row"><span class="tech-key">Roles</span><span class="tech-val">SUPER_ADMIN / STAFF / MEMBER</span></div>
+      <div class="tech-row"><span class="tech-key">Ownership</span><span class="tech-val">JWT email ↔ booking 소유권 검증</span></div>
+      <div class="tech-row"><span class="tech-key">Rate Limit</span><span class="tech-val">Bucket4j token-bucket</span></div>
+      <div class="tech-row"><span class="tech-key">XSS</span><span class="tech-val">DOMPurify 클라이언트 산화</span></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Load data
+let DATA = null;
+fetch('architecture.json')
+  .then(r => r.json())
+  .then(d => { DATA = d; init(); })
+  .catch(() => {
+    // fallback: try to load inline (for when opened directly)
+    console.warn('Could not load architecture.json, some sections may be empty');
+  });
+
+function init() {
+  buildStats();
+  buildDomainMap();
+  buildControllers();
+  buildEntities();
+  buildFrontend();
+}
+
+function buildStats() {
+  const epCount = DATA.backend.controllers.reduce((a, c) => a + c.endpoints.length, 0);
+  document.getElementById('stat-controllers').textContent = DATA.backend.controllers.length;
+  document.getElementById('stat-endpoints').textContent = epCount;
+  document.getElementById('stat-entities').textContent = DATA.backend.entities.length;
+  document.getElementById('stat-services').textContent = DATA.backend.services.length;
+  document.getElementById('stat-pages').textContent = DATA.frontend.pages.length;
+}
+
+function buildDomainMap() {
+  const el = document.getElementById('domain-map');
+  DATA.domains.forEach(d => {
+    const count = DATA.backend.controllers.filter(c => c.domain === d.id).length;
+    const epCount = DATA.backend.controllers.filter(c => c.domain === d.id).reduce((a, c) => a + c.endpoints.length, 0);
+    el.innerHTML += `<div style="padding:12px 16px;border-radius:10px;border:1px solid ${d.color}30;background:${d.color}08;min-width:150px">
+      <div style="font-weight:700;font-size:13px;color:${d.color}">${d.label}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${count}개 컨트롤러 · ${epCount}개 엔드포인트</div>
+    </div>`;
+  });
+}
+
+function getDomainColor(domainId) {
+  if (!DATA) return '#8892a4';
+  const d = DATA.domains.find(d => d.id === domainId);
+  return d ? d.color : '#8892a4';
+}
+
+// API Tab
+let activeDomain = 'all';
+function buildControllers() {
+  // Domain filter
+  const filterEl = document.getElementById('domain-filter');
+  filterEl.innerHTML = `<button class="filter-btn active" style="background:var(--accent);color:#000;border-color:var(--accent)" onclick="setDomain('all',this)">전체</button>`;
+  DATA.domains.forEach(d => {
+    filterEl.innerHTML += `<button class="filter-btn" onclick="setDomain('${d.id}',this)" style="--dc:${d.color}">${d.label}</button>`;
+  });
+
+  renderControllers('all', '');
+}
+
+function setDomain(domain, btn) {
+  activeDomain = domain;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.color = '';
+    b.style.borderColor = '';
+  });
+  btn.classList.add('active');
+  const color = domain === 'all' ? 'var(--accent)' : getDomainColor(domain);
+  btn.style.background = color;
+  btn.style.color = domain === 'all' ? '#000' : '#fff';
+  btn.style.borderColor = color;
+  renderControllers(domain, document.querySelector('.search-bar').value);
+}
+
+function filterEndpoints(q) {
+  renderControllers(activeDomain, q);
+}
+
+function renderControllers(domain, q) {
+  const list = document.getElementById('controllers-list');
+  const lower = q.toLowerCase();
+
+  let html = '';
+  DATA.backend.controllers.forEach((ctrl, ci) => {
+    if (domain !== 'all' && ctrl.domain !== domain) return;
+    const eps = ctrl.endpoints.filter(e =>
+      !lower || e.path.toLowerCase().includes(lower) || e.description.toLowerCase().includes(lower) || ctrl.name.toLowerCase().includes(lower)
+    );
+    if (eps.length === 0 && lower) return;
+
+    const color = getDomainColor(ctrl.domain);
+    html += `<div class="controller-group" data-ci="${ci}">
+      <div class="controller-header" onclick="toggleController(this)" style="border-color:${color}40">
+        <div class="domain-dot" style="background:${color}"></div>
+        <div class="controller-name" style="color:${color}">${ctrl.name}</div>
+        <div class="controller-base" style="font-family:monospace;font-size:12px;color:var(--muted);margin-left:8px">${ctrl.basePath}</div>
+        <div style="margin-left:auto;font-size:12px;color:var(--muted);padding-right:8px">${eps.length} endpoints</div>
+        <div class="chevron">▶</div>
+      </div>
+      <div class="endpoint-list ${lower ? 'open' : ''}">`;
+
+    eps.forEach(e => {
+      html += `<div class="endpoint-row">
+        <span class="method m-${e.method}">${e.method}</span>
+        <span class="ep-path">${ctrl.basePath}${e.path}</span>
+        <span class="ep-desc">${e.description}</span>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  list.innerHTML = html || '<div style="color:var(--muted);padding:40px;text-align:center">검색 결과 없음</div>';
+}
+
+function toggleController(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// Entities
+function buildEntities() {
+  const grid = document.getElementById('entity-grid');
+  document.getElementById('entity-count').textContent = DATA.backend.entities.length;
+  DATA.backend.entities.forEach(e => {
+    const color = getDomainColor(e.domain);
+    grid.innerHTML += `<div class="entity-card" style="border-color:${color}30">
+      <div class="ename">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        ${e.name}
+        <span style="font-size:11px;color:${color};font-weight:400;margin-left:auto">${DATA.domains.find(d=>d.id===e.domain)?.label||''}</span>
+      </div>
+      <div class="fields">
+        ${e.keyFields.map((f,i) => `<span class="field-tag${i<2?' key':''}">${f}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+}
+
+// Frontend
+function buildFrontend() {
+  const tbody = document.querySelector('#pages-table tbody');
+  DATA.frontend.pages.forEach(p => {
+    tbody.innerHTML += `<tr>
+      <td class="route">${p.route}</td>
+      <td>${p.name}</td>
+      <td><span class="role-badge role-${p.role}">${p.role}</span></td>
+    </tr>`;
+  });
+
+  const compGrid = document.getElementById('comp-grid');
+  DATA.frontend.components.forEach(c => {
+    compGrid.innerHTML += `<span class="comp-tag">${c}</span>`;
+  });
+}
+
+// Tab switching
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+{
+  "project": {
+    "name": "MuscleSpoon",
+    "description": "헬스장 통합 관리 SaaS 플랫폼 — 관리자 웹 + 회원 앱",
+    "type": "Full-Stack SaaS",
+    "developedBy": "1인 풀스택 개발",
+    "period": "2025.01 ~ 진행 중"
+  },
+  "techStack": {
+    "backend": {
+      "language": "Java 21",
+      "framework": "Spring Boot 3.5.0",
+      "security": "Spring Security 6 + JWT (jjwt 0.12.6)",
+      "database": "PostgreSQL + Spring Data JPA + Flyway",
+      "realtime": "WebSocket (STOMP)",
+      "notifications": "Firebase FCM (Web Push)",
+      "rateLimit": "Bucket4j 8.10.1",
+      "hosting": "Oracle Cloud (Nginx reverse proxy)"
+    },
+    "frontend": {
+      "framework": "Next.js 14",
+      "language": "TypeScript 5",
+      "styling": "Tailwind CSS 4",
+      "ui": "shadcn/ui + Base UI",
+      "charts": "Recharts",
+      "websocket": "@stomp/stompjs",
+      "sanitization": "DOMPurify",
+      "pwa": "Service Worker + Web App Manifest"
+    }
+  },
+  "architecture": {
+    "pattern": "Multi-tenant SaaS (shared DB + gym_id isolation)",
+    "auth": "JWT Access Token + Refresh Token + TokenVersion invalidation",
+    "roles": ["SUPER_ADMIN", "STAFF", "MEMBER"],
+    "layers": ["Controller", "Service", "Repository", "Entity"]
+  },
+  "backend": {
+    "controllers": [
+      {
+        "name": "AuthController",
+        "basePath": "/api/auth",
+        "domain": "auth",
+        "endpoints": [
+          { "method": "POST", "path": "/login", "description": "관리자 로그인" },
+          { "method": "POST", "path": "/member-login", "description": "회원 로그인" },
+          { "method": "POST", "path": "/logout", "description": "로그아웃" }
+        ]
+      },
+      {
+        "name": "MemberController",
+        "basePath": "/api/members",
+        "domain": "member",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "회원 전체 조회" },
+          { "method": "GET", "path": "/{id}", "description": "회원 단건 조회" },
+          { "method": "POST", "path": "/", "description": "회원 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "회원 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "회원 삭제" },
+          { "method": "GET", "path": "/search", "description": "회원 검색" },
+          { "method": "PATCH", "path": "/{id}/profile", "description": "프로필 수정 (회원)" },
+          { "method": "POST", "path": "/{id}/change-password", "description": "비밀번호 변경" },
+          { "method": "POST", "path": "/{id}/reset-password", "description": "비밀번호 초기화" },
+          { "method": "POST", "path": "/sync-statuses", "description": "회원 상태 동기화" }
+        ]
+      },
+      {
+        "name": "BookingController",
+        "basePath": "/api/bookings",
+        "domain": "lesson",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "예약 전체 조회" },
+          { "method": "POST", "path": "/", "description": "수업 예약" },
+          { "method": "PATCH", "path": "/{id}/cancel", "description": "예약 취소" },
+          { "method": "PATCH", "path": "/{id}/attend", "description": "출석 처리" },
+          { "method": "PATCH", "path": "/{id}/absent", "description": "결석 처리" },
+          { "method": "POST", "path": "/admin-reserve", "description": "관리자 예약 추가" },
+          { "method": "PATCH", "path": "/{id}/admin-attend", "description": "관리자 출석 처리" },
+          { "method": "GET", "path": "/member/{memberId}", "description": "회원별 예약 조회" },
+          { "method": "GET", "path": "/lesson/{lessonId}", "description": "수업별 예약 조회" }
+        ]
+      },
+      {
+        "name": "LessonController",
+        "basePath": "/api/lessons",
+        "domain": "lesson",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "수업 전체 조회" },
+          { "method": "POST", "path": "/", "description": "수업 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "수업 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "수업 삭제" },
+          { "method": "GET", "path": "/date", "description": "날짜별 수업 조회" },
+          { "method": "GET", "path": "/upcoming", "description": "예정 수업 조회" },
+          { "method": "GET", "path": "/group/{groupId}", "description": "그룹별 수업 조회" }
+        ]
+      },
+      {
+        "name": "TicketController",
+        "basePath": "/api/members/{memberId}/tickets",
+        "domain": "ticket",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "회원권 목록" },
+          { "method": "POST", "path": "/", "description": "회원권 발급" },
+          { "method": "PUT", "path": "/{ticketId}", "description": "회원권 전체 수정" },
+          { "method": "PATCH", "path": "/{ticketId}/dates", "description": "기간 수정" },
+          { "method": "PATCH", "path": "/{ticketId}/hold", "description": "홀드 설정" },
+          { "method": "DELETE", "path": "/{ticketId}/hold", "description": "홀드 취소" },
+          { "method": "GET", "path": "/{ticketId}/holds", "description": "홀드 내역" },
+          { "method": "PATCH", "path": "/{ticketId}/unpaid", "description": "미수금 처리" },
+          { "method": "PATCH", "path": "/{ticketId}/pay-unpaid", "description": "미수금 납부" },
+          { "method": "GET", "path": "/{ticketId}/payments", "description": "결제 내역" },
+          { "method": "DELETE", "path": "/{ticketId}", "description": "회원권 삭제" }
+        ]
+      },
+      {
+        "name": "PtController",
+        "basePath": "/api/pt",
+        "domain": "pt",
+        "endpoints": [
+          { "method": "GET", "path": "/members", "description": "PT 회원 목록" },
+          { "method": "GET", "path": "/pending", "description": "미완료 PT 일정" },
+          { "method": "GET", "path": "/pending-lessons", "description": "미완료 PT 수업" }
+        ]
+      },
+      {
+        "name": "PtWorkoutController",
+        "basePath": "/api/lessons/{lessonId}/pt-workout",
+        "domain": "pt",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "PT 운동 조회" },
+          { "method": "PUT", "path": "/", "description": "PT 운동 저장" },
+          { "method": "GET", "path": "/api/pt-exercise-names", "description": "운동 이름 목록" }
+        ]
+      },
+      {
+        "name": "PtJournalController",
+        "basePath": "/api/lessons/{lessonId}/pt-journal",
+        "domain": "pt",
+        "endpoints": [
+          { "method": "GET", "path": "/{memberId}", "description": "PT 일지 조회" },
+          { "method": "PUT", "path": "/{memberId}", "description": "PT 일지 저장" },
+          { "method": "GET", "path": "/api/members/{memberId}/pt-journals", "description": "회원 PT 일지 목록" }
+        ]
+      },
+      {
+        "name": "DailyWorkoutController",
+        "basePath": "/api/workout-board",
+        "domain": "workout",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "오늘의 운동 조회" },
+          { "method": "GET", "path": "/dates", "description": "운동 작성된 날짜 목록" },
+          { "method": "PUT", "path": "/", "description": "오늘의 운동 저장" }
+        ]
+      },
+      {
+        "name": "InBodyController",
+        "basePath": "/api/members/{memberId}/inbody",
+        "domain": "member",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "인바디 기록 목록" },
+          { "method": "POST", "path": "/", "description": "인바디 기록 추가" },
+          { "method": "PUT", "path": "/{inBodyId}", "description": "인바디 기록 수정" },
+          { "method": "DELETE", "path": "/{inBodyId}", "description": "인바디 기록 삭제" }
+        ]
+      },
+      {
+        "name": "PrRecordController",
+        "basePath": "/api/members/{memberId}/pr-records",
+        "domain": "member",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "PR 기록 목록" },
+          { "method": "POST", "path": "/", "description": "PR 기록 저장" },
+          { "method": "DELETE", "path": "/{prId}", "description": "PR 기록 삭제" }
+        ]
+      },
+      {
+        "name": "NoticeController",
+        "basePath": "/api/notices",
+        "domain": "notice",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "활성 공지 조회" },
+          { "method": "GET", "path": "/all", "description": "전체 공지 조회" },
+          { "method": "POST", "path": "/", "description": "공지 작성" },
+          { "method": "PUT", "path": "/{id}", "description": "공지 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "공지 삭제" }
+        ]
+      },
+      {
+        "name": "DashboardController",
+        "basePath": "/api/dashboard",
+        "domain": "dashboard",
+        "endpoints": [
+          { "method": "GET", "path": "/stats", "description": "대시보드 통계" },
+          { "method": "GET", "path": "/attendance-rate", "description": "출석률" },
+          { "method": "GET", "path": "/activity-feed", "description": "실시간 활동 피드" }
+        ]
+      },
+      {
+        "name": "StatisticsController",
+        "basePath": "/api/statistics",
+        "domain": "statistics",
+        "endpoints": [
+          { "method": "GET", "path": "/tickets", "description": "회원권 통계" }
+        ]
+      },
+      {
+        "name": "LockerController",
+        "basePath": "/api/lockers",
+        "domain": "locker",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "락커 전체 조회" },
+          { "method": "PATCH", "path": "/{number}/assign", "description": "락커 배정" },
+          { "method": "PATCH", "path": "/{number}/release", "description": "락커 반납" },
+          { "method": "PATCH", "path": "/{number}/broken", "description": "고장 처리" },
+          { "method": "PATCH", "path": "/resize", "description": "락커 수량 조정" }
+        ]
+      },
+      {
+        "name": "ChatController",
+        "basePath": "/api/chat",
+        "domain": "chat",
+        "endpoints": [
+          { "method": "GET", "path": "/my-room", "description": "내 채팅방" },
+          { "method": "GET", "path": "/my-room/messages", "description": "내 채팅 메시지" },
+          { "method": "GET", "path": "/rooms", "description": "전체 채팅방 (플랫폼)" },
+          { "method": "GET", "path": "/rooms/{roomId}/messages", "description": "채팅방 메시지" },
+          { "method": "GET", "path": "/rooms/unread-count", "description": "미읽음 수" },
+          { "method": "DELETE", "path": "/rooms/{roomId}", "description": "채팅방 삭제" }
+        ]
+      },
+      {
+        "name": "ChatWebSocketController",
+        "basePath": "/ws",
+        "domain": "chat",
+        "endpoints": [
+          { "method": "WS", "path": "/chat/{roomId}", "description": "실시간 채팅 (STOMP)" }
+        ]
+      },
+      {
+        "name": "PushController",
+        "basePath": "/api/push",
+        "domain": "notification",
+        "endpoints": [
+          { "method": "GET", "path": "/vapid-public-key", "description": "VAPID 공개키 조회" },
+          { "method": "POST", "path": "/subscribe", "description": "푸시 구독 등록" },
+          { "method": "DELETE", "path": "/subscribe", "description": "푸시 구독 해제" }
+        ]
+      },
+      {
+        "name": "InstructorController",
+        "basePath": "/api/instructors",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "강사 목록" },
+          { "method": "POST", "path": "/", "description": "강사 추가" },
+          { "method": "PUT", "path": "/{id}", "description": "강사 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "강사 삭제" }
+        ]
+      },
+      {
+        "name": "LessonTemplateController",
+        "basePath": "/api/lesson-templates",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "수업 템플릿 목록" },
+          { "method": "POST", "path": "/", "description": "수업 템플릿 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "수업 템플릿 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "수업 템플릿 삭제" },
+          { "method": "PATCH", "path": "/reorder", "description": "순서 변경" }
+        ]
+      },
+      {
+        "name": "TicketTemplateController",
+        "basePath": "/api/ticket-templates",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "회원권 템플릿 목록" },
+          { "method": "POST", "path": "/", "description": "회원권 템플릿 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "회원권 템플릿 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "회원권 템플릿 삭제" },
+          { "method": "PATCH", "path": "/reorder", "description": "순서 변경" }
+        ]
+      },
+      {
+        "name": "ExtraTemplateController",
+        "basePath": "/api/extra-templates",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "부가상품 템플릿 목록" },
+          { "method": "POST", "path": "/", "description": "부가상품 템플릿 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "부가상품 템플릿 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "부가상품 템플릿 삭제" }
+        ]
+      },
+      {
+        "name": "ExtraPurchaseController",
+        "basePath": "/api/members/{memberId}/extras",
+        "domain": "ticket",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "부가상품 구매 목록" },
+          { "method": "POST", "path": "/", "description": "부가상품 구매" },
+          { "method": "PUT", "path": "/{purchaseId}", "description": "구매 수정" },
+          { "method": "POST", "path": "/{purchaseId}/pay", "description": "미수금 납부" },
+          { "method": "GET", "path": "/{purchaseId}/payments", "description": "결제 내역" },
+          { "method": "DELETE", "path": "/{purchaseId}", "description": "구매 삭제" }
+        ]
+      },
+      {
+        "name": "HolidayController",
+        "basePath": "/api/holidays",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "휴일 목록" },
+          { "method": "POST", "path": "/", "description": "휴일 등록" },
+          { "method": "DELETE", "path": "/{id}", "description": "휴일 삭제" }
+        ]
+      },
+      {
+        "name": "SettingController",
+        "basePath": "/api/settings",
+        "domain": "settings",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "헬스장 설정 조회" },
+          { "method": "PUT", "path": "/", "description": "헬스장 설정 저장" }
+        ]
+      },
+      {
+        "name": "GymController",
+        "basePath": "/api/gyms",
+        "domain": "platform",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "헬스장 목록" },
+          { "method": "POST", "path": "/", "description": "헬스장 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "헬스장 수정" },
+          { "method": "PATCH", "path": "/{id}/toggle-status", "description": "활성/비활성 토글" },
+          { "method": "DELETE", "path": "/{id}", "description": "헬스장 삭제" },
+          { "method": "GET", "path": "/my-contract", "description": "내 계약 조회" }
+        ]
+      },
+      {
+        "name": "AdminController",
+        "basePath": "/api/admins",
+        "domain": "platform",
+        "endpoints": [
+          { "method": "GET", "path": "/", "description": "관리자 목록" },
+          { "method": "POST", "path": "/", "description": "관리자 생성" },
+          { "method": "PUT", "path": "/{id}", "description": "관리자 수정" },
+          { "method": "DELETE", "path": "/{id}", "description": "관리자 삭제" }
+        ]
+      },
+      {
+        "name": "PlatformMessageController",
+        "basePath": "/api/platform/messages",
+        "domain": "platform",
+        "endpoints": [
+          { "method": "POST", "path": "/", "description": "메시지 발송" },
+          { "method": "GET", "path": "/my", "description": "내 메시지 목록" },
+          { "method": "GET", "path": "/", "description": "전체 메시지 목록" },
+          { "method": "PUT", "path": "/{id}/reply", "description": "메시지 답변" },
+          { "method": "PATCH", "path": "/{id}/read", "description": "읽음 처리" }
+        ]
+      }
+    ],
+    "entities": [
+      { "name": "Member", "domain": "member", "keyFields": ["memberId", "name", "email", "phone", "gender", "birthDate", "status", "gymId"] },
+      { "name": "Gym", "domain": "platform", "keyFields": ["gymId", "name", "address", "phone", "status", "contractEndDate"] },
+      { "name": "Admin", "domain": "auth", "keyFields": ["adminId", "email", "role", "gymId"] },
+      { "name": "Ticket", "domain": "ticket", "keyFields": ["ticketId", "memberId", "gymId", "ticketType", "startDate", "expiryDate", "remainingCount", "status"] },
+      { "name": "TicketTemplate", "domain": "settings", "keyFields": ["templateId", "name", "category", "visitsPerMonth", "price"] },
+      { "name": "TicketPayment", "domain": "ticket", "keyFields": ["paymentId", "ticketId", "cardAmount", "cashAmount", "paidAt"] },
+      { "name": "TicketHold", "domain": "ticket", "keyFields": ["holdId", "ticketId", "startDate", "endDate"] },
+      { "name": "Lesson", "domain": "lesson", "keyFields": ["lessonId", "gymId", "title", "instructor", "startTime", "endTime", "capacity", "category", "groupId"] },
+      { "name": "LessonTemplate", "domain": "settings", "keyFields": ["templateId", "name", "category", "capacity", "duration"] },
+      { "name": "Booking", "domain": "lesson", "keyFields": ["bookingId", "memberId", "lessonId", "status", "createdAt", "canceledAt"] },
+      { "name": "Instructor", "domain": "settings", "keyFields": ["instructorId", "gymId", "name", "email", "phone"] },
+      { "name": "DailyWorkout", "domain": "workout", "keyFields": ["workoutId", "gymId", "date", "content", "updatedAt"] },
+      { "name": "PtWorkout", "domain": "pt", "keyFields": ["workoutId", "lessonId"] },
+      { "name": "PtExercise", "domain": "pt", "keyFields": ["exerciseId", "workoutId", "name", "sets", "reps", "weight"] },
+      { "name": "PtJournal", "domain": "pt", "keyFields": ["journalId", "lessonId", "memberId", "coachingPoints", "memo"] },
+      { "name": "InBodyRecord", "domain": "member", "keyFields": ["inBodyId", "memberId", "measuredAt", "height", "weight", "muscleMass", "bodyFat", "bmi"] },
+      { "name": "PrRecord", "domain": "member", "keyFields": ["recordId", "memberId", "exerciseName", "record"] },
+      { "name": "Notice", "domain": "notice", "keyFields": ["noticeId", "gymId", "title", "content", "active", "createdAt"] },
+      { "name": "Holiday", "domain": "settings", "keyFields": ["holidayId", "gymId", "date", "memo", "isHoliday"] },
+      { "name": "Locker", "domain": "locker", "keyFields": ["number", "gymId", "memberId", "status"] },
+      { "name": "Setting", "domain": "settings", "keyFields": ["settingId", "gymId", "lessonCapacity", "ticketValidityDays"] },
+      { "name": "ExtraTemplate", "domain": "settings", "keyFields": ["templateId", "gymId", "name", "type", "price"] },
+      { "name": "ExtraPurchase", "domain": "ticket", "keyFields": ["purchaseId", "memberId", "templateId", "quantity", "totalPrice", "status"] },
+      { "name": "ChatRoom", "domain": "chat", "keyFields": ["roomId", "gymId", "gymName", "lastMessageAt"] },
+      { "name": "ChatMessage", "domain": "chat", "keyFields": ["messageId", "roomId", "senderRole", "content", "isRead", "sentAt"] },
+      { "name": "PushSubscription", "domain": "notification", "keyFields": ["subscriptionId", "memberId", "gymId", "endpoint", "p256dh", "auth"] },
+      { "name": "PlatformMessage", "domain": "platform", "keyFields": ["messageId", "gymId", "content", "reply", "isRead"] },
+      { "name": "ContractPlan", "domain": "platform", "keyFields": ["planId", "name", "durationMonths"] }
+    ],
+    "services": [
+      "AuthService", "MemberService", "MemberActivationScheduler",
+      "GymService", "TicketService", "TicketTemplateService",
+      "BookingService", "LessonService", "LessonTemplateService",
+      "DailyWorkoutService", "PtWorkoutService", "PtService", "PtJournalService",
+      "InBodyService", "PrRecordService", "NoticeService", "HolidayService",
+      "DashboardService", "SettingService", "StatisticsService",
+      "ExtraTemplateService", "ExtraPurchaseService",
+      "InstructorService", "LockerService",
+      "ChatRoomService", "ChatMessageService",
+      "PushNotificationService", "PlatformSettingService",
+      "LessonReminderScheduler"
+    ]
+  },
+  "frontend": {
+    "pages": [
+      { "route": "/", "name": "홈", "role": "public" },
+      { "route": "/login", "name": "관리자 로그인", "role": "public" },
+      { "route": "/member-login", "name": "회원 로그인", "role": "public" },
+      { "route": "/member", "name": "회원 앱 (수업/예약/프로필)", "role": "MEMBER" },
+      { "route": "/(admin)/dashboard", "name": "대시보드", "role": "STAFF" },
+      { "route": "/(admin)/members", "name": "회원 관리", "role": "STAFF" },
+      { "route": "/(admin)/lessons", "name": "수업 스케줄", "role": "STAFF" },
+      { "route": "/(admin)/pt", "name": "PT 관리", "role": "STAFF" },
+      { "route": "/(admin)/notices", "name": "공지사항", "role": "STAFF" },
+      { "route": "/(admin)/statistics", "name": "통계", "role": "STAFF" },
+      { "route": "/(admin)/settings", "name": "헬스장 설정", "role": "STAFF" },
+      { "route": "/(admin)/workout", "name": "오늘의 운동", "role": "STAFF" },
+      { "route": "/(admin)/lockers", "name": "락커 관리", "role": "STAFF" },
+      { "route": "/super-admin/gyms", "name": "헬스장 관리", "role": "SUPER_ADMIN" },
+      { "route": "/super-admin/messages", "name": "플랫폼 메시지", "role": "SUPER_ADMIN" }
+    ],
+    "components": [
+      "AdminShell", "AdminSidebar", "AdminHeader",
+      "DatePicker", "ToastContainer", "ServiceWorkerRegister",
+      "tabs", "card", "dialog", "badge", "table", "button",
+      "dropdown-menu", "skeleton", "avatar", "tooltip",
+      "NumberInput", "progress", "separator"
+    ]
+  },
+  "domains": [
+    { "id": "auth", "label": "인증", "color": "#6366f1" },
+    { "id": "member", "label": "회원", "color": "#0ea5e9" },
+    { "id": "lesson", "label": "수업/예약", "color": "#10b981" },
+    { "id": "ticket", "label": "회원권/결제", "color": "#f59e0b" },
+    { "id": "pt", "label": "PT", "color": "#ec4899" },
+    { "id": "workout", "label": "오늘의 운동", "color": "#84cc16" },
+    { "id": "notice", "label": "공지", "color": "#14b8a6" },
+    { "id": "dashboard", "label": "대시보드", "color": "#8b5cf6" },
+    { "id": "statistics", "label": "통계", "color": "#f97316" },
+    { "id": "locker", "label": "락커", "color": "#64748b" },
+    { "id": "chat", "label": "채팅", "color": "#06b6d4" },
+    { "id": "notification", "label": "푸시 알림", "color": "#a855f7" },
+    { "id": "settings", "label": "설정", "color": "#6b7280" },
+    { "id": "platform", "label": "플랫폼 (슈퍼관리자)", "color": "#dc2626" }
+  ]
+}

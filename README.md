@@ -1,4 +1,4 @@
-# 💪 MuscleSpoon
+# 💪 MuscleMemory
 
 **헬스장 통합 관리 SaaS 플랫폼 — 관리자 웹 + 회원 앱**
 
@@ -312,10 +312,16 @@ muscle-spoon/
 
 **2026.05 ~ 진행 중** · 1인 풀스택 개발
 
-**시연**
+## 🎮 서비스 시연 (Demo)
 
-https://musclememory.kr
+MuscleSpoon의 주요 기능(관리자 웹)을 직접 체험해 보실 수 있습니다. 아래 버튼을 클릭하여 테스트 계정으로 로그인해 보세요!
 
-관리자계정
-ID:test@gym.com
-PW:asd123123
+[![사이트 방문하기](https://img.shields.io/badge/MuscleMemory_웹사이트_방문하기-38bdf8?style=for-the-badge&logo=googlechrome&logoColor=white)](https://musclememory.kr)
+
+> **💡 테스트 관리자 계정**
+>
+> - **접속 링크:** [https://musclememory.kr](https://musclememory.kr)
+> - **ID:** `test@gym.com`
+> - **PW:** `asd123123`
+
+_※ 누구나 접근할 수 있는 테스트 환경이므로, 실제 개인정보나 민감한 데이터 입력은 삼가주시기 바랍니다._

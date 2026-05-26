@@ -113,9 +113,18 @@
   }
   .flow-item:hover { background: rgba(255,255,255,0.03); }
   .flow-item.active { background: var(--highlight-bg); border-left-color: var(--highlight); }
-  .flow-title { font-weight: 700; font-size: 0.88rem; color: var(--text); margin-bottom: 3px; }
+  .flow-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .flow-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--dim); color: var(--muted);
+    font-weight: 800; font-size: 0.72rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .flow-item.active .flow-num { background: var(--highlight); color: #000; }
+  .flow-title { font-weight: 700; font-size: 0.88rem; color: var(--text); }
   .flow-item.active .flow-title { color: #fef3c7; }
-  .flow-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .flow-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; padding-left: 28px; }
   .clear-btn {
     display: block; width: calc(100% - 40px); margin: 10px 20px 14px;
     padding: 8px; border-radius: 6px; font-size: 0.82rem;
@@ -469,7 +478,8 @@ function renderFlowsList() {
     const div = document.createElement('div');
     div.className = 'flow-item';
     div.id = 'flow-' + f.id;
-    div.innerHTML = `<div class="flow-title">${f.title}</div><div class="flow-desc">${f.desc}</div>`;
+    const idx = FLOWS.indexOf(f) + 1;
+    div.innerHTML = `<div class="flow-header"><div class="flow-num">${idx}</div><div class="flow-title">${f.title}</div></div><div class="flow-desc">${f.desc}</div>`;
     div.onclick = () => selectFlow(f.id);
     panel.appendChild(div);
   });

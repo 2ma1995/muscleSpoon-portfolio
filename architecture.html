@@ -584,20 +584,21 @@ function drawConnections(flow) {
   
   // 2) Draw active flow connections on top
   if (flow) {
+    const activePaths = [];
     flow.conns.forEach(([f, t]) => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', makePath(f, t));
       const isBack = NODES_MAP[f].col > NODES_MAP[t].col;
       path.setAttribute('class', isBack ? 'conn-active-back' : 'conn-active');
-      
-      // Animated dash offset for active paths
-      const len = path.getTotalLength ? path.getTotalLength() : 400;
+      svg.appendChild(path);
+      activePaths.push(path);
+
+      const len = path.getTotalLength();
       path.style.strokeDasharray = len;
       path.style.strokeDashoffset = len;
       path.style.animation = `dash 0.8s ease forwards`;
-      svg.appendChild(path);
     });
-    
+
     // Add arrowheads to active connections
     flow.conns.forEach(([f, t]) => {
       const to = NODES_MAP[t];
@@ -606,7 +607,7 @@ function drawConnections(flow) {
       if (from.col < to.col) anchor = getAnchor(t, 'left');
       else if (from.col > to.col) anchor = getAnchor(t, 'right');
       else anchor = getAnchor(t, from.row < to.row ? 'top' : 'bottom');
-      
+
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('cx', anchor.x);
       circle.setAttribute('cy', anchor.y);
@@ -614,6 +615,35 @@ function drawConnections(flow) {
       circle.setAttribute('fill', 'var(--highlight)');
       circle.style.filter = 'drop-shadow(0 0 4px rgba(234,179,8,0.5))';
       svg.appendChild(circle);
+    });
+
+    // Add step number badges at midpoint of each active path
+    activePaths.forEach((path, idx) => {
+      const len = path.getTotalLength();
+      const mid = path.getPointAtLength(len / 2);
+
+      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      bg.setAttribute('cx', mid.x);
+      bg.setAttribute('cy', mid.y);
+      bg.setAttribute('r', '11');
+      bg.setAttribute('fill', 'var(--highlight)');
+      bg.setAttribute('stroke', 'var(--bg)');
+      bg.setAttribute('stroke-width', '2');
+      bg.style.filter = 'drop-shadow(0 0 5px rgba(234,179,8,0.6))';
+      svg.appendChild(bg);
+
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', mid.x);
+      label.setAttribute('y', mid.y);
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('dominant-baseline', 'central');
+      label.setAttribute('fill', '#000');
+      label.setAttribute('font-weight', '800');
+      label.setAttribute('font-size', '10');
+      label.setAttribute('font-family', 'Inter, sans-serif');
+      label.setAttribute('pointer-events', 'none');
+      label.textContent = idx + 1;
+      svg.appendChild(label);
     });
   }
   

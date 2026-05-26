@@ -3,660 +3,636 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MuscleSpoon — Premium Architecture</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'base',
-    themeVariables: {
-      background: 'transparent',
-      primaryColor: '#18181b',
-      primaryTextColor: '#f8fafc',
-      primaryBorderColor: '#38bdf8',
-      lineColor: '#818cf8',
-      secondaryColor: '#0f172a',
-      tertiaryColor: '#09090b',
-      fontFamily: 'Inter',
-    },
-    flowchart: { curve: 'basis' }
-  });
-  window.mermaid = mermaid;
-</script>
+<title>MuscleSpoon — Architecture &amp; Flows</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #09090b;
-    --surface: rgba(24, 24, 27, 0.6);
-    --surface-hover: rgba(39, 39, 42, 0.8);
-    --border: rgba(255, 255, 255, 0.1);
-    --border-hover: rgba(255, 255, 255, 0.2);
-    --text: #f4f4f5;
-    --muted: #a1a1aa;
-    --primary: #38bdf8;
-    --secondary: #818cf8;
-    --success: #34d399;
-    --danger: #f43f5e;
-    --font-head: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-code: 'Fira Code', monospace;
+    --bg: #0a0a0f;
+    --surface: #111119;
+    --surface2: #18181f;
+    --border: rgba(255,255,255,0.08);
+    --text: #e4e4e7;
+    --muted: #71717a;
+    --dim: #3f3f46;
+    --highlight: #eab308;
+    --highlight-bg: rgba(234,179,8,0.08);
+    --highlight-border: rgba(234,179,8,0.4);
+    --node-actor: #4ade80;
+    --node-client: #38bdf8;
+    --node-auth: #a78bfa;
+    --node-service: #818cf8;
+    --node-data: #f97316;
+    --node-infra: #eab308;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background-color: var(--bg); color: var(--text);
-    font-family: var(--font-body); min-height: 100vh;
-    background-image: 
-      radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.08), transparent 25%);
-    background-attachment: fixed;
-  }
-  
-  /* Header */
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; overflow: hidden; }
+
+  /* ── Header ── */
   header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 40px 60px; border-bottom: 1px solid var(--border);
-    background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(20px);
-    position: sticky; top: 0; z-index: 50;
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
   }
-  .header-left h1 { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
-  .header-left h1 span { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header-left p { color: var(--muted); font-size: 1.1rem; }
-  
-  .header-mission {
-    background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2);
-    padding: 16px 24px; border-radius: 12px; max-width: 420px;
-    box-shadow: 0 4px 24px -4px rgba(56, 189, 248, 0.1);
-  }
-  .header-mission p { font-size: 0.9rem; color: #bae6fd; line-height: 1.6; margin-bottom: 8px;}
-  .header-mission p:last-child { margin-bottom: 0; }
-  .header-mission strong { color: #fff; font-weight: 600; display: inline-block; width: 60px; }
+  header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+  header h1 span { color: var(--highlight); }
+  header p { color: var(--muted); font-size: 0.92rem; line-height: 1.5; max-width: 800px; }
+  header p strong { color: var(--text); }
 
-  /* Nav */
-  nav {
-    padding: 0 60px; display: flex; gap: 8px; margin-top: 30px;
-    border-bottom: 1px solid var(--border); overflow-x: auto;
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17,17,25,0.7);
   }
-  nav button {
-    background: transparent; border: none; color: var(--muted);
-    font-family: var(--font-head); font-size: 1.1rem; font-weight: 600;
-    padding: 16px 24px; cursor: pointer; position: relative;
-    transition: all 0.3s ease; white-space: nowrap;
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── Main Layout ── */
+  .layout { display: flex; height: calc(100vh - 115px); }
+
+  /* ── Diagram Panel ── */
+  .diagram-panel { flex: 1; overflow: auto; padding: 30px 30px 60px; position: relative; }
+  .col-headers {
+    display: flex; gap: 0; margin-bottom: 16px;
+    position: sticky; top: 0; z-index: 5;
   }
-  nav button:hover { color: var(--text); }
-  nav button.active { color: var(--primary); }
-  nav button.active::after {
-    content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-    height: 3px; background: var(--primary); border-radius: 3px 3px 0 0;
-    box-shadow: 0 -2px 10px rgba(56, 189, 248, 0.5);
+  .col-header {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--dim); padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .diagram-container { position: relative; }
+  .diagram-container svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
   }
 
-  /* Main */
-  main { padding: 40px 60px; max-width: 1600px; margin: 0 auto; }
-  .section { display: none; animation: fadeIn 0.4s ease forwards; }
-  .section.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  /* ── Nodes ── */
+  .node {
+    position: absolute; z-index: 2;
+    padding: 9px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    border-left: 3px solid var(--type-color);
+    cursor: default;
+    transition: opacity 0.3s, border-color 0.3s, box-shadow 0.3s;
+    min-width: 0;
+  }
+  .node-label { font-weight: 700; font-size: 0.82rem; color: var(--text); white-space: nowrap; }
+  .node-sub { font-size: 0.7rem; color: var(--muted); margin-top: 2px; white-space: nowrap; line-height: 1.4; }
+  .node.active {
+    border-left-color: var(--highlight) !important;
+    border-color: var(--highlight-border);
+    box-shadow: 0 0 16px rgba(234,179,8,0.2), inset 0 0 20px rgba(234,179,8,0.03);
+  }
+  .node.active .node-label { color: #fef3c7; }
+  .node.dimmed { opacity: 0.15; }
 
-  /* Cards */
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 32px; margin-bottom: 32px;
-    backdrop-filter: blur(10px); transition: transform 0.3s, border-color 0.3s;
-  }
-  .card:hover { border-color: var(--border-hover); }
-  .card-title {
-    font-family: var(--font-head); font-size: 1.4rem; font-weight: 600;
-    color: var(--text); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
-  }
-  
-  /* Stats Grid */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px; }
-  .stat-card {
-    background: linear-gradient(145deg, rgba(24, 24, 27, 0.8), rgba(9, 9, 11, 0.8));
-    border: 1px solid var(--border); border-radius: 16px; padding: 24px;
-    display: flex; flex-direction: column; justify-content: center; position: relative;
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 370px; min-width: 370px;
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    background: var(--surface);
     overflow: hidden;
   }
-  .stat-card::before {
-    content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
-    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-    opacity: 0.1; border-radius: 50%; transform: translate(30%, -30%);
-  }
-  .stat-card .num { font-family: var(--font-head); font-size: 3.5rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 12px; }
-  .stat-card .label { color: var(--muted); font-size: 0.95rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  /* Diagram Container */
-  .mermaid-container {
-    background: rgba(0,0,0,0.3); border-radius: 12px; padding: 30px;
-    overflow-x: auto; display: flex; justify-content: center;
-    border: 1px solid rgba(255,255,255,0.05);
+  /* ── Flows Panel ── */
+  .flows-panel { flex: 0 0 auto; max-height: 50%; overflow-y: auto; border-bottom: 1px solid var(--border); }
+  .panel-title {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); padding: 18px 20px 10px; position: sticky; top: 0; background: var(--surface); z-index: 2;
   }
+  .flow-item {
+    padding: 10px 20px;
+    border-left: 3px solid transparent;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .flow-item:hover { background: rgba(255,255,255,0.03); }
+  .flow-item.active { background: var(--highlight-bg); border-left-color: var(--highlight); }
+  .flow-title { font-weight: 700; font-size: 0.88rem; color: var(--text); margin-bottom: 3px; }
+  .flow-item.active .flow-title { color: #fef3c7; }
+  .flow-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .clear-btn {
+    display: block; width: calc(100% - 40px); margin: 10px 20px 14px;
+    padding: 8px; border-radius: 6px; font-size: 0.82rem;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .clear-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
 
-  /* API & Entities */
-  .search-input {
-    width: 100%; padding: 16px 24px; background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border); border-radius: 12px;
-    color: var(--text); font-family: var(--font-body); font-size: 1.1rem;
-    margin-bottom: 24px; transition: border-color 0.3s;
+  /* ── Steps Panel ── */
+  .steps-panel { flex: 1; overflow-y: auto; }
+  .step { display: flex; gap: 14px; padding: 12px 20px; }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--highlight); color: #000;
+    font-weight: 800; font-size: 0.78rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
   }
-  .search-input:focus { outline: none; border-color: var(--primary); }
-  
-  .badge {
-    padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
-    font-family: var(--font-code); border: 1px solid; background: rgba(255,255,255,0.05);
+  .step-path {
+    font-family: 'Fira Code', monospace; font-size: 0.78rem; font-weight: 600;
+    color: var(--highlight); margin-bottom: 4px;
   }
-  
-  /* Controller Accordions */
-  .controller {
-    background: rgba(24, 24, 27, 0.4); border: 1px solid var(--border);
-    border-radius: 12px; margin-bottom: 16px; overflow: hidden;
-  }
-  .ctrl-header {
-    padding: 20px 24px; display: flex; align-items: center; gap: 16px;
-    cursor: pointer; user-select: none; transition: background 0.2s;
-  }
-  .ctrl-header:hover { background: rgba(255, 255, 255, 0.03); }
-  .ctrl-name { font-family: var(--font-head); font-weight: 600; font-size: 1.1rem; }
-  .ctrl-path { font-family: var(--font-code); color: var(--muted); font-size: 0.9rem; }
-  .ctrl-count { margin-left: auto; font-size: 0.9rem; color: var(--muted); background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 20px; }
-  .eps-list { display: none; padding: 0 24px 16px; }
-  .eps-list.open { display: block; }
-  .ep-row {
-    display: flex; align-items: center; gap: 20px; padding: 12px 0;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-  .ep-method { font-family: var(--font-code); font-weight: 600; font-size: 0.85rem; min-width: 65px; text-align: center; padding: 6px 10px; border-radius: 6px; }
-  .m-GET { color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); }
-  .m-POST { color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); }
-  .m-PUT { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); }
-  .m-PATCH { color: #a78bfa; background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.2); }
-  .m-DELETE { color: #f43f5e; background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); }
-  .m-WS { color: #818cf8; background: rgba(129, 140, 248, 0.1); border: 1px solid rgba(129, 140, 248, 0.2); }
-  .ep-path { font-family: var(--font-code); color: var(--text); font-size: 0.95rem; flex: 1; }
-  .ep-desc { color: var(--muted); font-size: 0.95rem; }
+  .step-text { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
 
-  /* Entities Grid */
-  .entities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-  .entity-card {
-    background: rgba(24, 24, 27, 0.4); border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px; transition: transform 0.2s;
-  }
-  .entity-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }
-  .entity-card h3 { font-family: var(--font-head); color: var(--primary); margin-bottom: 16px; font-size: 1.2rem; }
-  .field-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-  .ftag {
-    font-family: var(--font-code); font-size: 0.85rem; padding: 6px 10px;
-    background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; color: var(--muted);
-  }
-  .ftag.key { color: var(--secondary); border-color: rgba(129, 140, 248, 0.3); background: rgba(129, 140, 248, 0.1); }
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-  /* Frontend */
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  th { font-family: var(--font-head); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
-  td { font-size: 1rem; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  
-  .tech-stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
-  
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+  /* ── SVG paths ── */
+  .conn-base { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 1.2; }
+  .conn-active { fill: none; stroke: var(--highlight); stroke-width: 2.2; filter: drop-shadow(0 0 4px rgba(234,179,8,0.35)); }
+  .conn-active-back { fill: none; stroke: var(--highlight); stroke-width: 1.8; stroke-dasharray: 6,4; filter: drop-shadow(0 0 3px rgba(234,179,8,0.25)); }
 
-  /* Domain Map Tags */
-  .domain-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
-  .domain-btn {
-    padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border);
-    background: rgba(24, 24, 27, 0.6); color: var(--muted); cursor: pointer;
-    font-weight: 500; transition: all 0.2s; font-size: 0.95rem;
+  @media (max-width: 1200px) {
+    .sidebar { width: 320px; min-width: 320px; }
   }
-  .domain-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
-  .domain-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600;}
-
-  @media (max-width: 768px) {
-    header { padding: 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
-    nav, main { padding: 24px; }
-    .header-left h1 { font-size: 2rem; }
-    .stat-card .num { font-size: 2.5rem; }
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; height: auto; }
+    .sidebar { width: 100%; min-width: 100%; max-height: 50vh; }
+    .diagram-panel { min-height: 500px; }
+    body { overflow: auto; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <h1>Muscle<span>Spoon</span></h1>
-    <p>Premium SaaS Architecture Documentation</p>
-  </div>
-  <div class="header-mission">
-    <p><strong>HTML</strong> ── Visual, human-readable flows.</p>
-    <p><strong>JSON</strong> ── Structured map for AI to begin work immediately with zero manual handoff.</p>
-  </div>
+  <h1>Muscle<span>Spoon</span> — Architecture &amp; Flows</h1>
+  <p>Every package and service that powers <strong>MuscleSpoon SaaS</strong>. Pick a flow on the right to highlight the path through the system and see what gets passed at each step.</p>
 </header>
 
-<nav>
-  <button class="active" onclick="showTab('flows', this)">System Flows</button>
-  <button onclick="showTab('overview', this)">Overview</button>
-  <button onclick="showTab('api', this)">API Endpoints</button>
-  <button onclick="showTab('entities', this)">Database Schema</button>
-  <button onclick="showTab('frontend', this)">Frontend Structure</button>
-</nav>
+<div class="legend" id="legend"></div>
 
-<main>
-
-  <!-- FLOWS TAB -->
-  <div id="tab-flows" class="section active">
-    
-    <div class="card">
-      <h2 class="card-title">🌐 High-Level Architecture Flow</h2>
-      <p style="color:var(--muted);margin-bottom:24px;font-size:1rem;line-height:1.6;">
-        관리자 웹앱과 회원 PWA가 인증 게이트웨이를 거쳐 비즈니스 로직과 상호작용하는 전체적인 거시 아키텍처 흐름입니다.
-      </p>
-      <div class="mermaid-container">
-        <div class="mermaid">
-          graph LR
-            subgraph Client Layer
-              A[Admin Web App<br/>Next.js 16] 
-              B[Member App PWA<br/>Next.js 16]
-            end
-            
-            subgraph Security Gateway
-              C{Spring Security 6<br/>JWT Auth Filter}
-            end
-            
-            subgraph Business Services
-              D(Spring Boot 3.5 API<br/>REST Endpoints)
-              E(WebSocket STOMP<br/>Real-time Chat)
-            end
-            
-            subgraph Infrastructure
-              F[(MySQL 8.0<br/>Cloud SQL)]
-              G[Firebase FCM<br/>Push Delivery]
-            end
-            
-            A ==>|HTTPS / REST| C
-            B ==>|HTTPS / REST| C
-            B -.->|WS / STOMP| E
-            C --> D
-            C --> E
-            D ==>|JPA Multi-tenant| F
-            D -.->|HTTP API| G
-            G -.->|Web Push| B
-            
-            classDef default fill:#18181b,stroke:#334155,stroke-width:1px,color:#f8fafc;
-            classDef accent fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff;
-            classDef db fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#fff;
-            classDef auth fill:#2e1065,stroke:#a78bfa,stroke-width:2px,color:#fff;
-            
-            class A,B accent;
-            class F db;
-            class C auth;
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">🛡️ Multi-tenant Authentication Flow</h2>
-      <p style="color:var(--muted);margin-bottom:24px;font-size:1rem;line-height:1.6;">
-        JWT 기반 로그인, 강제 로그아웃을 위한 TokenVersion 검증, 그리고 모든 데이터 쿼리에 동적으로 주입되는 <code>gym_id</code> 테넌트 격리 로직입니다.
-      </p>
-      <div class="mermaid-container">
-        <div class="mermaid">
-          sequenceDiagram
-            actor User as Client App
-            participant Auth as Security Filter
-            participant API as Services
-            participant DB as MySQL (JPA)
-
-            User->>Auth: POST /api/auth/login (Email/PW)
-            Auth->>DB: Validate Credentials
-            DB-->>Auth: Success (Returns gym_id & token_version)
-            Auth-->>User: Access + Refresh Token (JWT)
-            
-            Note over User,Auth: JWT Payload: { sub: email, gymId: 1, role: MEMBER, version: 2 }
-            
-            User->>Auth: GET /api/members/me (Bearer Token)
-            Auth->>Auth: Validate Signature & Expiration
-            Auth->>DB: Check TokenVersion (If changed -> Force Logout)
-            Auth->>API: Pass Request with Principal (gymId context)
-            
-            rect rgb(20, 30, 50)
-              Note over API,DB: Hibernate @Filter applies WHERE gym_id = ? to ALL queries
-              API->>DB: SELECT * FROM member
-              DB-->>API: Filtered Tenant Data (gym_id = 1)
-            end
-            
-            API-->>User: 200 OK + Data
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">📅 Class Booking & Notification Flow</h2>
-      <p style="color:var(--muted);margin-bottom:24px;font-size:1rem;line-height:1.6;">
-        회원권 잔여 횟수 차감 및 예약 동시성 문제 해결, 그리고 관리자 대시보드 및 푸시 알림의 비동기 전송 흐름입니다.
-      </p>
-      <div class="mermaid-container">
-        <div class="mermaid">
-          sequenceDiagram
-            actor Member
-            participant App as Member App
-            participant API as BookingService
-            participant DB as MySQL (JPA)
-            participant WS as Dashboard (WebSocket)
-            participant FCM as Firebase Cloud Messaging
-
-            Member->>App: Click "Book Class"
-            App->>API: POST /api/bookings
-            
-            rect rgb(20, 40, 30)
-              Note over API,DB: @Transactional (Pessimistic Lock / Redisson)
-              API->>DB: Check Lesson Capacity
-              API->>DB: Validate Ticket Count & Expiry
-              API->>DB: Decrement Remaining Count
-              API->>DB: Insert Booking Entity
-            end
-            
-            API-->>App: 200 OK (Booking Confirmed)
-            
-            par Asynchronous Events
-              API->>WS: Broadcast Update Event
-              WS-->>AdminWeb: Update Real-time Feed
-              API->>FCM: Trigger Push Notification
-              FCM-->>Member: Receive Reminder Push
-            end
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- OVERVIEW TAB -->
-  <div id="tab-overview" class="section">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="num" id="stat-ctrls">0</div>
-        <div class="label">REST Controllers</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-eps">0</div>
-        <div class="label">API Endpoints</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-entities">0</div>
-        <div class="label">JPA Entities</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-pages">0</div>
-        <div class="label">Frontend Pages</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">Business Domains</h2>
-      <div class="domain-filters" id="domain-map">
-        <!-- Rendered by JS -->
-      </div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">Tech Stack</h2>
-      <div class="tech-stack-grid" id="tech-grid">
-        <!-- Rendered by JS -->
-      </div>
+<div class="layout">
+  <div class="diagram-panel" id="diagramPanel">
+    <div class="col-headers" id="colHeaders"></div>
+    <div class="diagram-container" id="diagram">
+      <svg id="svgLayer"></svg>
     </div>
   </div>
 
-  <!-- API TAB -->
-  <div id="tab-api" class="section">
-    <input type="text" class="search-input" id="api-search" placeholder="🔍 Search endpoints, paths, or descriptions (e.g. 'member', 'POST', '/login')...">
-    <div class="domain-filters" id="api-domain-filters"></div>
-    <div id="controllers-container"></div>
-  </div>
-
-  <!-- ENTITIES TAB -->
-  <div id="tab-entities" class="section">
-    <div class="card" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2);">
-      <p style="margin: 0; font-size: 1.05rem; line-height: 1.6;">
-        <strong style="color: var(--primary);">Data Isolation Architecture:</strong> 모든 엔티티는 단일 물리적 데이터베이스(MySQL)에 저장되며, 
-        <code class="badge" style="color:var(--primary); border-color:var(--primary);">gymId</code> 컬럼을 통해 테넌트를 논리적으로 격리합니다. 
-        Spring Hibernate의 전역 <code>@Filter</code>가 적용되어 개발자의 휴먼 에러로 인한 데이터 유출을 원천 차단합니다.
-      </p>
+  <div class="sidebar">
+    <div class="flows-panel" id="flowsPanel">
+      <div class="panel-title">FLOWS</div>
     </div>
-    <div class="entities-grid" id="entities-container"></div>
-  </div>
-
-  <!-- FRONTEND TAB -->
-  <div id="tab-frontend" class="section">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
-      <div class="card">
-        <h2 class="card-title">Pages & Routing</h2>
-        <table>
-          <thead>
-            <tr><th>Route Path</th><th>Page Name</th><th>Access Role</th></tr>
-          </thead>
-          <tbody id="pages-tbody"></tbody>
-        </table>
-      </div>
-      
-      <div style="display: flex; flex-direction: column; gap: 32px;">
-        <div class="card">
-          <h2 class="card-title">UI Components Infrastructure</h2>
-          <div class="field-tags" id="components-container"></div>
-        </div>
-        
-        <div class="card">
-          <h2 class="card-title">Frontend Architecture Highlights</h2>
-          <ul style="color: var(--muted); font-size: 1.05rem; line-height: 1.9; padding-left: 20px;">
-            <li><strong style="color:var(--text);">App Router (Next.js 16):</strong> Server Components(RSC)와 Client Components를 전략적으로 혼합하여 렌더링 성능 극대화</li>
-            <li><strong style="color:var(--text);">PWA / Service Worker:</strong> 웹앱을 네이티브 앱처럼 사용할 수 있도록 오프라인 캐싱 및 백그라운드 FCM Push 알림 수신</li>
-            <li><strong style="color:var(--text);">Tailwind CSS 4 + shadcn/ui:</strong> 일관된 디자인 시스템 적용 및 높은 접근성(a11y) 확보</li>
-            <li><strong style="color:var(--text);">Custom DatePicker:</strong> 무거운 서드파티 라이브러리를 배제하고 캘린더/주간 뷰를 독자 구현하여 성능 최적화</li>
-            <li><strong style="color:var(--text);">Security (DOMPurify):</strong> 관리자가 리치 에디터로 작성한 '오늘의 운동' HTML을 클라이언트 사이드에서 XSS 필터링 후 안전하게 렌더링</li>
-          </ul>
-        </div>
-      </div>
+    <div class="steps-panel" id="stepsPanel">
+      <div class="panel-title">STEPS</div>
     </div>
   </div>
-
-</main>
+</div>
 
 <script>
-let ARCH_DATA = null;
-let currentDomainFilter = 'all';
+// ─────────────────────────── LAYOUT CONFIG ───────────────────────────
+const L = {
+  colX:     [20, 200, 385, 570, 765, 945],
+  colW:     [160, 160, 160, 160, 160, 160],
+  rowStart: 10,
+  rowStep:  58,
+  nodeW:    158,
+  nodeH:    48,
+};
+const DIAGRAM_W = L.colX[5] + L.colW[5] + 20;
 
-// Tab Navigation
-window.showTab = function(id, btn) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(s => {
-    s.classList.remove('active');
-    s.style.animation = 'none';
-    s.offsetHeight; 
-    s.style.animation = null; 
+// ─────────────────────────── COLUMNS ───────────────────────────
+const COLUMNS = [
+  { id: 'actors',   label: 'ACTORS',            color: 'var(--node-actor)' },
+  { id: 'clients',  label: 'CLIENT SURFACES',   color: 'var(--node-client)' },
+  { id: 'auth',     label: 'AUTH / MIDDLEWARE',  color: 'var(--node-auth)' },
+  { id: 'services', label: 'API SERVICES',      color: 'var(--node-service)' },
+  { id: 'data',     label: 'DATA LAYER',        color: 'var(--node-data)' },
+  { id: 'infra',    label: 'INFRASTRUCTURE',    color: 'var(--node-infra)' },
+];
+
+// ─────────────────────────── NODES ───────────────────────────
+const NODES = [
+  // Actors
+  { id: 'member',      col: 0, row: 0,   label: 'End User',        sub: '(Member)' },
+  { id: 'staff',       col: 0, row: 1,   label: 'Gym Staff',       sub: '(Admin / STAFF)' },
+  { id: 'super_admin', col: 0, row: 2,   label: 'Super Admin',     sub: '(Platform Owner)' },
+  { id: 'cron',        col: 0, row: 7,   label: 'Scheduler',       sub: 'MemberActivation\nLessonReminder' },
+
+  // Clients
+  { id: 'member_app',  col: 1, row: 0,   label: 'Member App',      sub: 'Next.js 16 · PWA · FCM' },
+  { id: 'admin_web',   col: 1, row: 1,   label: 'Admin Web App',   sub: 'Next.js 16 · TypeScript' },
+  { id: 'super_panel', col: 1, row: 2,   label: 'Super Admin Panel', sub: 'Next.js 16' },
+
+  // Auth / Middleware
+  { id: 'jwt_filter',  col: 2, row: 0.8, label: 'JWT Auth Filter',   sub: 'Spring Security 6\nRBAC · TokenVersion' },
+  { id: 'rate_limit',  col: 2, row: 2.5, label: 'Rate Limiter',      sub: 'Bucket4j 8.10\ntoken-bucket' },
+
+  // Services
+  { id: 'auth_svc',    col: 3, row: 0,   label: 'AuthService',        sub: '로그인 / JWT / 로그아웃' },
+  { id: 'member_svc',  col: 3, row: 1,   label: 'MemberService',      sub: '회원 CRUD · InBody · PR' },
+  { id: 'booking_svc', col: 3, row: 2,   label: 'Booking & Lesson',   sub: '수업 예약 · 스케줄 관리' },
+  { id: 'ticket_svc',  col: 3, row: 3,   label: 'TicketService',      sub: '회원권 · 결제 · 부가상품' },
+  { id: 'pt_svc',      col: 3, row: 4,   label: 'PT Service',         sub: 'PT 일정 · 운동 · 일지' },
+  { id: 'chat_svc',    col: 3, row: 5,   label: 'ChatService',        sub: '실시간 채팅 (STOMP)' },
+  { id: 'dash_svc',    col: 3, row: 6,   label: 'DashboardService',   sub: '대시보드 · 통계 · 활동피드' },
+  { id: 'notice_svc',  col: 3, row: 7,   label: 'NoticeService',      sub: '공지 · 푸시 · 오늘의운동' },
+  { id: 'platform_svc',col: 3, row: 8,   label: 'GymService',         sub: '플랫폼 · 설정 · 락커' },
+
+  // Data
+  { id: 'mysql',       col: 4, row: 3.5, label: 'MySQL 8.0',          sub: 'Google Cloud SQL\n28 Tables · gym_id tenant' },
+  { id: 'flyway',      col: 4, row: 5.5, label: 'Flyway',             sub: 'Schema Migration\nVersion Control' },
+
+  // Infrastructure
+  { id: 'fcm',         col: 5, row: 0.5, label: 'Firebase FCM',       sub: 'Web Push Notification\nVAPID · Service Worker' },
+  { id: 'websocket',   col: 5, row: 4,   label: 'WebSocket',          sub: 'STOMP Protocol\n@stomp/stompjs' },
+  { id: 'cloud_run',   col: 5, row: 6.5, label: 'Cloud Run',          sub: 'Container Hosting\nDocker · Auto-scale' },
+  { id: 'cloudflare',  col: 5, row: 8,   label: 'Cloudflare',         sub: 'musclememory.kr\nDNS · CDN · SSL' },
+];
+const NODES_MAP = Object.fromEntries(NODES.map(n => [n.id, n]));
+
+// ─────────────────────────── BASE CONNECTIONS ───────────────────────────
+const BASE_CONNS = [
+  ['member','member_app'], ['staff','admin_web'], ['super_admin','super_panel'],
+  ['member_app','jwt_filter'], ['admin_web','jwt_filter'], ['super_panel','jwt_filter'],
+  ['jwt_filter','auth_svc'], ['jwt_filter','member_svc'], ['jwt_filter','booking_svc'],
+  ['jwt_filter','ticket_svc'], ['jwt_filter','pt_svc'], ['jwt_filter','chat_svc'],
+  ['jwt_filter','dash_svc'], ['jwt_filter','notice_svc'], ['jwt_filter','platform_svc'],
+  ['auth_svc','mysql'], ['member_svc','mysql'], ['booking_svc','mysql'],
+  ['ticket_svc','mysql'], ['pt_svc','mysql'], ['chat_svc','mysql'],
+  ['dash_svc','mysql'], ['notice_svc','mysql'], ['platform_svc','mysql'],
+  ['chat_svc','websocket'], ['booking_svc','websocket'],
+  ['notice_svc','fcm'], ['cron','member_svc'], ['cron','booking_svc'],
+  ['fcm','member_app'], ['websocket','member_app'], ['websocket','admin_web'],
+  ['cloud_run','mysql'], ['cloudflare','cloud_run'],
+];
+
+// ─────────────────────────── FLOWS ───────────────────────────
+const FLOWS = [
+  {
+    id: 'booking',
+    title: '수업 예약 (Class Booking)',
+    desc: '회원이 PWA에서 수업을 예약하면 회원권 차감, 실시간 대시보드 갱신까지',
+    nodes: ['member','member_app','jwt_filter','booking_svc','mysql','websocket','admin_web'],
+    conns: [
+      ['member','member_app'], ['member_app','jwt_filter'], ['jwt_filter','booking_svc'],
+      ['booking_svc','mysql'], ['booking_svc','websocket'], ['websocket','admin_web'],
+    ],
+    steps: [
+      { path: 'Member → Member App', text: '회원이 PWA에서 주간 수업 스케줄을 확인하고 예약 버튼 클릭' },
+      { path: 'Member App → JWT Filter', text: 'POST /api/bookings — Bearer JWT 토큰과 함께 예약 요청 전송' },
+      { path: 'JWT Filter → BookingService', text: '토큰 서명/만료 검증, TokenVersion 확인 후 gymId 컨텍스트와 함께 서비스로 전달' },
+      { path: 'BookingService → MySQL', text: '@Transactional 내에서 수업 정원 확인 → 회원권 잔여 횟수 차감 → Booking 엔티티 생성. 동시 예약 방지를 위한 비관적 잠금 처리' },
+      { path: 'BookingService → WebSocket', text: 'STOMP 프로토콜로 예약 이벤트를 /topic/dashboard/{gymId}에 브로드캐스트' },
+      { path: 'WebSocket → Admin Web', text: '관리자 대시보드의 실시간 활동 피드에 "○○님 예약" 이벤트가 즉시 반영' },
+    ]
+  },
+  {
+    id: 'login',
+    title: '관리자 로그인 (Admin Login)',
+    desc: '이메일/비밀번호 인증 후 JWT 토큰 발급 플로우',
+    nodes: ['staff','admin_web','jwt_filter','auth_svc','mysql'],
+    conns: [
+      ['staff','admin_web'], ['admin_web','jwt_filter'], ['jwt_filter','auth_svc'], ['auth_svc','mysql'],
+    ],
+    steps: [
+      { path: 'Staff → Admin Web', text: '관리자가 로그인 페이지에서 이메일과 비밀번호를 입력' },
+      { path: 'Admin Web → JWT Filter', text: 'POST /api/auth/login — Rate Limiter(Bucket4j)를 통과하여 인증 요청' },
+      { path: 'JWT Filter → AuthService', text: '로그인 요청은 별도 인증 로직으로 전달 (JWT 검증 skip)' },
+      { path: 'AuthService → MySQL', text: 'Admin 엔티티 조회 → BCrypt 비밀번호 해시 검증 → TokenVersion 확인' },
+      { path: 'AuthService', text: 'Access Token(15분) + Refresh Token(7일) 발급. JWT Payload에 sub(email), gymId, role, version 포함' },
+    ]
+  },
+  {
+    id: 'chat',
+    title: '실시간 채팅 (Real-time Chat)',
+    desc: '회원 ↔ 관리자 간 WebSocket STOMP 기반 실시간 메시지',
+    nodes: ['member','member_app','jwt_filter','chat_svc','mysql','websocket','admin_web'],
+    conns: [
+      ['member','member_app'], ['member_app','jwt_filter'], ['jwt_filter','chat_svc'],
+      ['chat_svc','mysql'], ['chat_svc','websocket'], ['websocket','admin_web'],
+    ],
+    steps: [
+      { path: 'Member → Member App', text: '회원이 PWA에서 채팅방을 열기' },
+      { path: 'Member App → JWT Filter', text: 'WebSocket 핸드셰이크 시 JWT 토큰으로 인증, STOMP /ws 엔드포인트 연결' },
+      { path: 'JWT Filter → ChatService', text: 'GET /api/chat/my-room/messages로 기존 메시지 히스토리 로드' },
+      { path: 'ChatService → MySQL', text: 'ChatMessage 엔티티를 roomId 기준으로 페이징 조회' },
+      { path: 'ChatService → WebSocket', text: '회원이 STOMP SEND로 메시지 전송 → ChatMessage 저장 후 /topic/chat/{roomId}에 브로드캐스트' },
+      { path: 'WebSocket → Admin Web', text: '관리자 웹의 채팅 목록에 실시간 메시지 도착, 미읽음 카운트 갱신' },
+    ]
+  },
+  {
+    id: 'push',
+    title: '푸시 알림 (Push Notification)',
+    desc: '관리자가 공지 작성 시 FCM을 통해 회원 앱에 Web Push 전송',
+    nodes: ['staff','admin_web','jwt_filter','notice_svc','mysql','fcm','member_app'],
+    conns: [
+      ['staff','admin_web'], ['admin_web','jwt_filter'], ['jwt_filter','notice_svc'],
+      ['notice_svc','mysql'], ['notice_svc','fcm'], ['fcm','member_app'],
+    ],
+    steps: [
+      { path: 'Staff → Admin Web', text: '관리자가 공지사항 작성 또는 수업 개설/변경' },
+      { path: 'Admin Web → JWT Filter', text: 'POST /api/notices — JWT 인증 및 STAFF 역할 검증' },
+      { path: 'JWT Filter → NoticeService', text: '공지 작성 요청 처리' },
+      { path: 'NoticeService → MySQL', text: 'Notice 엔티티 저장 → gymId 기준으로 PushSubscription 목록 조회' },
+      { path: 'NoticeService → Firebase FCM', text: 'VAPID 키 기반으로 구독된 모든 회원 디바이스에 Web Push 전송 요청' },
+      { path: 'Firebase FCM → Member App', text: 'Service Worker가 백그라운드에서 Push를 수신하여 시스템 알림 표시' },
+    ]
+  },
+  {
+    id: 'pt',
+    title: 'PT 관리 (PT Session)',
+    desc: 'PT 수업 운동 기록과 코칭 일지 작성 플로우',
+    nodes: ['staff','admin_web','jwt_filter','pt_svc','mysql'],
+    conns: [
+      ['staff','admin_web'], ['admin_web','jwt_filter'], ['jwt_filter','pt_svc'], ['pt_svc','mysql'],
+    ],
+    steps: [
+      { path: 'Staff → Admin Web', text: 'PT 관리 페이지에서 PT 회원 목록 확인 후 수업 선택' },
+      { path: 'Admin Web → JWT Filter', text: 'PUT /api/lessons/{id}/pt-workout — JWT 인증' },
+      { path: 'JWT Filter → PtService', text: 'STAFF 역할 검증 후 PT 서비스로 전달' },
+      { path: 'PtService → MySQL', text: 'PtWorkout(운동 기록), PtExercise(세트/무게/횟수), PtJournal(코칭 포인트/메모) 저장' },
+    ]
+  },
+  {
+    id: 'dashboard',
+    title: '대시보드 (Real-time Dashboard)',
+    desc: '실시간 활동 피드와 통계를 WebSocket으로 수신',
+    nodes: ['staff','admin_web','jwt_filter','dash_svc','mysql','websocket'],
+    conns: [
+      ['staff','admin_web'], ['admin_web','jwt_filter'], ['jwt_filter','dash_svc'],
+      ['dash_svc','mysql'], ['dash_svc','websocket'],
+    ],
+    steps: [
+      { path: 'Staff → Admin Web', text: '대시보드 페이지 접속' },
+      { path: 'Admin Web → JWT Filter', text: 'GET /api/dashboard/stats — JWT 인증' },
+      { path: 'JWT Filter → DashboardService', text: '통계 조회 요청 처리' },
+      { path: 'DashboardService → MySQL', text: '오늘의 예약 현황, 출석률, 회원 통계 집계. 회원별 최신 예약 1건 중복 제거 (CHANGED 라벨 병합)' },
+      { path: 'DashboardService → WebSocket', text: '/topic/dashboard/{gymId} 구독. 예약/출석/취소 이벤트 발생 시 실시간 피드 자동 갱신' },
+    ]
+  },
+  {
+    id: 'ticket',
+    title: '회원권 발급 (Ticket Purchase)',
+    desc: '회원에게 회원권을 발급하고 결제 정보를 기록',
+    nodes: ['staff','admin_web','jwt_filter','ticket_svc','mysql'],
+    conns: [
+      ['staff','admin_web'], ['admin_web','jwt_filter'], ['jwt_filter','ticket_svc'], ['ticket_svc','mysql'],
+    ],
+    steps: [
+      { path: 'Staff → Admin Web', text: '회원 상세 페이지에서 "회원권 발급" 클릭' },
+      { path: 'Admin Web → JWT Filter', text: 'POST /api/members/{id}/tickets — JWT 인증' },
+      { path: 'JWT Filter → TicketService', text: 'STAFF 역할 검증 후 서비스 호출' },
+      { path: 'TicketService → MySQL', text: 'TicketTemplate 기반으로 Ticket 생성 → 시작일/만료일 계산 → TicketPayment(카드/현금/미수금) 기록. 회원 상태(ACTIVE/EXPIRED) 자동 갱신' },
+    ]
+  },
+  {
+    id: 'platform',
+    title: '헬스장 온보딩 (Gym Setup)',
+    desc: '슈퍼관리자가 새 헬스장(테넌트)을 생성하는 플로우',
+    nodes: ['super_admin','super_panel','jwt_filter','platform_svc','mysql'],
+    conns: [
+      ['super_admin','super_panel'], ['super_panel','jwt_filter'],
+      ['jwt_filter','platform_svc'], ['platform_svc','mysql'],
+    ],
+    steps: [
+      { path: 'Super Admin → Super Admin Panel', text: '플랫폼 관리 페이지에서 새 헬스장 정보 입력' },
+      { path: 'Super Admin Panel → JWT Filter', text: 'POST /api/gyms — JWT 인증 + SUPER_ADMIN 전용 권한 검증' },
+      { path: 'JWT Filter → GymService', text: 'SUPER_ADMIN 역할 확인 후 전달' },
+      { path: 'GymService → MySQL', text: 'Gym 엔티티 생성(새 gymId 발급) → 관리자 계정 초기화 → 기본 Setting/Locker/Template 값 세팅. 이후 모든 데이터가 이 gymId로 격리됨' },
+    ]
+  },
+];
+
+// ─────────────────────────── STATE ───────────────────────────
+let activeFlowId = FLOWS[0].id;
+
+// ─────────────────────────── INIT ───────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderLegend();
+  renderColHeaders();
+  renderNodes();
+  renderFlowsList();
+  selectFlow(FLOWS[0].id);
+});
+
+// ─────────────────────────── LEGEND ───────────────────────────
+function renderLegend() {
+  const el = document.getElementById('legend');
+  const colors = ['#4ade80','#38bdf8','#a78bfa','#818cf8','#f97316','#eab308'];
+  const labels = ['Actor','Client surface','Auth / Middleware','API Service','Data layer','Infrastructure'];
+  el.innerHTML = labels.map((l, i) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${l}</div>`
+  ).join('');
+}
+
+// ─────────────────────────── COLUMN HEADERS ───────────────────────────
+function renderColHeaders() {
+  const el = document.getElementById('colHeaders');
+  el.innerHTML = COLUMNS.map((c, i) =>
+    `<div class="col-header" style="width:${L.colW[i]}px; margin-left:${i === 0 ? L.colX[0] : L.colX[i] - L.colX[i-1] - L.colW[i-1]}px">${c.label}</div>`
+  ).join('');
+}
+
+// ─────────────────────────── NODES ───────────────────────────
+function renderNodes() {
+  const container = document.getElementById('diagram');
+  const colors = ['var(--node-actor)','var(--node-client)','var(--node-auth)','var(--node-service)','var(--node-data)','var(--node-infra)'];
+  
+  let maxY = 0;
+  NODES.forEach(n => {
+    const x = L.colX[n.col];
+    const y = L.rowStart + n.row * L.rowStep;
+    const color = colors[n.col];
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'node';
+    nodeEl.id = 'node-' + n.id;
+    nodeEl.style.cssText = `left:${x}px; top:${y}px; width:${L.nodeW}px; --type-color:${color}; border-left-color:${color};`;
+    nodeEl.innerHTML = `<div class="node-label">${n.label}</div><div class="node-sub">${n.sub.replace(/\n/g,'<br>')}</div>`;
+    container.appendChild(nodeEl);
+    const bottom = y + L.nodeH + 60;
+    if (bottom > maxY) maxY = bottom;
   });
   
-  btn.classList.add('active');
-  document.getElementById('tab-' + id).classList.add('active');
+  container.style.width = DIAGRAM_W + 'px';
+  container.style.height = maxY + 'px';
+  const svg = document.getElementById('svgLayer');
+  svg.setAttribute('viewBox', `0 0 ${DIAGRAM_W} ${maxY}`);
+  svg.style.width = DIAGRAM_W + 'px';
+  svg.style.height = maxY + 'px';
+}
+
+// ─────────────────────────── FLOWS LIST ───────────────────────────
+function renderFlowsList() {
+  const panel = document.getElementById('flowsPanel');
+  FLOWS.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'flow-item';
+    div.id = 'flow-' + f.id;
+    div.innerHTML = `<div class="flow-title">${f.title}</div><div class="flow-desc">${f.desc}</div>`;
+    div.onclick = () => selectFlow(f.id);
+    panel.appendChild(div);
+  });
+  const btn = document.createElement('button');
+  btn.className = 'clear-btn';
+  btn.textContent = 'Clear selection';
+  btn.onclick = () => clearSelection();
+  panel.appendChild(btn);
+}
+
+// ─────────────────────────── SELECT FLOW ───────────────────────────
+function selectFlow(flowId) {
+  activeFlowId = flowId;
+  const flow = FLOWS.find(f => f.id === flowId);
   
-  if (id === 'flows' && window.mermaid) {
-    window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+  // Update flow list items
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('flow-' + flowId).classList.add('active');
+  
+  // Update nodes
+  NODES.forEach(n => {
+    const el = document.getElementById('node-' + n.id);
+    el.classList.remove('active', 'dimmed');
+    if (flow.nodes.includes(n.id)) {
+      el.classList.add('active');
+    } else {
+      el.classList.add('dimmed');
+    }
+  });
+  
+  // Draw connections
+  drawConnections(flow);
+  
+  // Render steps
+  renderSteps(flow);
+}
+
+function clearSelection() {
+  activeFlowId = null;
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  NODES.forEach(n => {
+    const el = document.getElementById('node-' + n.id);
+    el.classList.remove('active', 'dimmed');
+  });
+  drawConnections(null);
+  document.getElementById('stepsPanel').innerHTML = '<div class="panel-title">STEPS</div><div style="padding:20px;color:var(--muted);font-size:0.9rem;">플로우를 선택하면 단계별 설명이 표시됩니다.</div>';
+}
+
+// ─────────────────────────── SVG CONNECTIONS ───────────────────────────
+function getAnchor(nodeId, side) {
+  const n = NODES_MAP[nodeId];
+  const x = L.colX[n.col];
+  const y = L.rowStart + n.row * L.rowStep;
+  switch (side) {
+    case 'right':  return { x: x + L.nodeW, y: y + L.nodeH / 2 };
+    case 'left':   return { x: x,           y: y + L.nodeH / 2 };
+    case 'top':    return { x: x + L.nodeW / 2, y: y };
+    case 'bottom': return { x: x + L.nodeW / 2, y: y + L.nodeH };
   }
 }
 
-// Fetch and Init
-fetch('architecture.json')
-  .then(r => r.json())
-  .then(data => {
-    ARCH_DATA = data;
-    initData();
-  })
-  .catch(err => {
-    console.warn("Could not load architecture.json. Data might be missing.", err);
-  });
-
-function initData() {
-  if (!ARCH_DATA) return;
+function makePath(fromId, toId) {
+  const from = NODES_MAP[fromId];
+  const to = NODES_MAP[toId];
   
-  // Stats
-  const eps = ARCH_DATA.backend.controllers.reduce((sum, c) => sum + c.endpoints.length, 0);
-  document.getElementById('stat-ctrls').innerText = ARCH_DATA.backend.controllers.length;
-  document.getElementById('stat-eps').innerText = eps;
-  document.getElementById('stat-entities').innerText = ARCH_DATA.backend.entities.length;
-  document.getElementById('stat-pages').innerText = ARCH_DATA.frontend.pages.length;
-  
-  // Tech Stack
-  const techGrid = document.getElementById('tech-grid');
-  Object.entries(ARCH_DATA.techStack).forEach(([layer, techs]) => {
-    let html = `<div style="background: rgba(24,24,27,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
-      <h3 style="color: var(--primary); margin-bottom: 20px; text-transform: capitalize; font-family: var(--font-head); font-size: 1.1rem;">${layer}</h3>`;
-    Object.entries(techs).forEach(([k, v]) => {
-      html += `<div style="display:flex; justify-content:space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem;">
-        <span style="color: var(--muted); text-transform: capitalize;">${k}</span>
-        <strong style="color: var(--text);">${v}</strong>
-      </div>`;
-    });
-    html += `</div>`;
-    techGrid.innerHTML += html;
-  });
-
-  // Domain Filters for API
-  const apiFilterCont = document.getElementById('api-domain-filters');
-  const domMapCont = document.getElementById('domain-map');
-  
-  apiFilterCont.innerHTML = `<button class="domain-btn active" onclick="filterApiByDomain('all', this)">All Domains</button>`;
-  
-  ARCH_DATA.domains.forEach(d => {
-    // For Map
-    domMapCont.innerHTML += `<div style="padding: 10px 20px; border-radius: 10px; border: 1px solid ${d.color}40; background: ${d.color}10; color: ${d.color}; font-size: 1rem; font-weight: 500;">
-      ${d.label} (${d.id})
-    </div>`;
-    
-    // For API Filter
-    apiFilterCont.innerHTML += `<button class="domain-btn" onclick="filterApiByDomain('${d.id}', this)" style="border-color: ${d.color}40">${d.label}</button>`;
-  });
-
-  document.getElementById('api-search').addEventListener('input', (e) => {
-    renderApi(currentDomainFilter, e.target.value);
-  });
-
-  renderApi('all', '');
-  renderEntities();
-  renderFrontend();
-}
-
-function filterApiByDomain(domainId, btn) {
-  currentDomainFilter = domainId;
-  document.querySelectorAll('#api-domain-filters .domain-btn').forEach(b => {
-    b.classList.remove('active');
-    b.style.background = 'rgba(24, 24, 27, 0.6)';
-    b.style.color = 'var(--muted)';
-  });
-  btn.classList.add('active');
-  
-  if (domainId !== 'all') {
-    const d = ARCH_DATA.domains.find(x => x.id === domainId);
-    btn.style.background = d.color;
-    btn.style.color = '#000';
+  if (from.col < to.col) {
+    // Forward: right → left
+    const s = getAnchor(fromId, 'right');
+    const e = getAnchor(toId, 'left');
+    const dx = e.x - s.x;
+    const cp = Math.max(dx * 0.4, 30);
+    return `M${s.x},${s.y} C${s.x + cp},${s.y} ${e.x - cp},${e.y} ${e.x},${e.y}`;
+  } else if (from.col > to.col) {
+    // Backward: left of source → right of target, arc above
+    const s = getAnchor(fromId, 'left');
+    const e = getAnchor(toId, 'right');
+    const aboveY = Math.min(s.y, e.y) - 35;
+    return `M${s.x},${s.y} C${s.x - 35},${aboveY} ${e.x + 35},${aboveY} ${e.x},${e.y}`;
   } else {
-    btn.style.background = 'var(--primary)';
-    btn.style.color = '#000';
+    // Same column
+    const goingDown = from.row < to.row;
+    const s = getAnchor(fromId, goingDown ? 'bottom' : 'top');
+    const e = getAnchor(toId, goingDown ? 'top' : 'bottom');
+    const midY = (s.y + e.y) / 2;
+    return `M${s.x},${s.y} C${s.x},${midY} ${e.x},${midY} ${e.x},${e.y}`;
+  }
+}
+
+function drawConnections(flow) {
+  const svg = document.getElementById('svgLayer');
+  svg.innerHTML = '';
+  
+  // 1) Draw ALL base connections (very faint)
+  BASE_CONNS.forEach(([f, t]) => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', makePath(f, t));
+    const isBack = NODES_MAP[f].col > NODES_MAP[t].col;
+    path.setAttribute('class', 'conn-base');
+    if (isBack) path.setAttribute('stroke-dasharray', '4,3');
+    svg.appendChild(path);
+  });
+  
+  // 2) Draw active flow connections on top
+  if (flow) {
+    flow.conns.forEach(([f, t]) => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', makePath(f, t));
+      const isBack = NODES_MAP[f].col > NODES_MAP[t].col;
+      path.setAttribute('class', isBack ? 'conn-active-back' : 'conn-active');
+      
+      // Animated dash offset for active paths
+      const len = path.getTotalLength ? path.getTotalLength() : 400;
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.style.animation = `dash 0.8s ease forwards`;
+      svg.appendChild(path);
+    });
+    
+    // Add arrowheads to active connections
+    flow.conns.forEach(([f, t]) => {
+      const to = NODES_MAP[t];
+      const from = NODES_MAP[f];
+      let anchor;
+      if (from.col < to.col) anchor = getAnchor(t, 'left');
+      else if (from.col > to.col) anchor = getAnchor(t, 'right');
+      else anchor = getAnchor(t, from.row < to.row ? 'top' : 'bottom');
+      
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', anchor.x);
+      circle.setAttribute('cy', anchor.y);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', 'var(--highlight)');
+      circle.style.filter = 'drop-shadow(0 0 4px rgba(234,179,8,0.5))';
+      svg.appendChild(circle);
+    });
   }
   
-  renderApi(currentDomainFilter, document.getElementById('api-search').value);
+  // Add CSS animation
+  if (!document.getElementById('dash-anim')) {
+    const style = document.createElement('style');
+    style.id = 'dash-anim';
+    style.textContent = `@keyframes dash { to { stroke-dashoffset: 0; } }`;
+    document.head.appendChild(style);
+  }
 }
 
-function renderApi(domain, query) {
-  const cont = document.getElementById('controllers-container');
-  cont.innerHTML = '';
-  
-  const q = query.toLowerCase();
-  
-  ARCH_DATA.backend.controllers.forEach((ctrl, i) => {
-    if (domain !== 'all' && ctrl.domain !== domain) return;
-    
-    const filteredEps = ctrl.endpoints.filter(ep => 
-      !q || 
-      ep.path.toLowerCase().includes(q) || 
-      ep.description.toLowerCase().includes(q) || 
-      ep.method.toLowerCase().includes(q) ||
-      ctrl.name.toLowerCase().includes(q)
-    );
-    
-    if (filteredEps.length === 0 && q) return;
-    
-    const dom = ARCH_DATA.domains.find(d => d.id === ctrl.domain);
-    const color = dom ? dom.color : 'var(--primary)';
-    
-    let epsHtml = filteredEps.map(ep => `
-      <div class="ep-row">
-        <span class="ep-method m-${ep.method}">${ep.method}</span>
-        <span class="ep-path">${ctrl.basePath}${ep.path.replace(/\/$/, '')}</span>
-        <span class="ep-desc">${ep.description}</span>
-      </div>
-    `).join('');
-
-    const isSearch = q.length > 0;
-    
-    cont.innerHTML += `
-      <div class="controller">
-        <div class="ctrl-header" onclick="this.nextElementSibling.classList.toggle('open')" style="border-left: 4px solid ${color}">
-          <span class="ctrl-name" style="color: ${color}">${ctrl.name}</span>
-          <span class="ctrl-path">${ctrl.basePath}</span>
-          <span class="ctrl-count">${filteredEps.length} endpoints</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted); margin-left: 10px;"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-        <div class="eps-list ${isSearch ? 'open' : ''}">
-          ${epsHtml}
-        </div>
+// ─────────────────────────── STEPS ───────────────────────────
+function renderSteps(flow) {
+  const panel = document.getElementById('stepsPanel');
+  panel.innerHTML = '<div class="panel-title">STEPS</div>';
+  flow.steps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.innerHTML = `
+      <div class="step-num">${i + 1}</div>
+      <div>
+        <div class="step-path">${s.path}</div>
+        <div class="step-text">${s.text}</div>
       </div>
     `;
+    panel.appendChild(div);
   });
 }
-
-function renderEntities() {
-  const cont = document.getElementById('entities-container');
-  ARCH_DATA.backend.entities.forEach(ent => {
-    const dom = ARCH_DATA.domains.find(d => d.id === ent.domain);
-    const color = dom ? dom.color : 'var(--primary)';
-    
-    let tags = ent.keyFields.map((f, i) => `<span class="ftag ${i<2 ? 'key' : ''}">${f}</span>`).join('');
-    
-    cont.innerHTML += `
-      <div class="entity-card" style="border-top: 3px solid ${color}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-          <h3 style="color: ${color}; margin: 0;">${ent.name}</h3>
-          <span style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight: 600;">${ent.domain}</span>
-        </div>
-        <div class="field-tags">${tags}</div>
-      </div>
-    `;
-  });
-}
-
-function renderFrontend() {
-  const tbody = document.getElementById('pages-tbody');
-  ARCH_DATA.frontend.pages.forEach(p => {
-    let roleColor = '#a1a1aa';
-    if (p.role === 'SUPER_ADMIN') roleColor = 'var(--danger)';
-    if (p.role === 'STAFF') roleColor = 'var(--success)';
-    if (p.role === 'MEMBER') roleColor = 'var(--primary)';
-    
-    tbody.innerHTML += `
-      <tr>
-        <td style="font-family: var(--font-code); color: var(--text);">${p.route}</td>
-        <td>${p.name}</td>
-        <td><span class="badge" style="color:${roleColor}; border-color:${roleColor}40; background:${roleColor}10">${p.role}</span></td>
-      </tr>
-    `;
-  });
-  
-  const comps = document.getElementById('components-container');
-  ARCH_DATA.frontend.components.forEach(c => {
-    comps.innerHTML += `<span class="ftag" style="background: rgba(255,255,255,0.05); color: var(--text);">${c}</span>`;
-  });
-}
-
 </script>
 </body>
 </html>

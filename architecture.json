@@ -8,17 +8,17 @@
   },
   "techStack": {
     "backend": {
-      "language": "Java 21",
+      "language": "Java 17",
       "framework": "Spring Boot 3.5.0",
       "security": "Spring Security 6 + JWT (jjwt 0.12.6)",
-      "database": "PostgreSQL + Spring Data JPA + Flyway",
+      "database": "MySQL 8.0 (Google Cloud SQL) + Spring Data JPA + Flyway",
       "realtime": "WebSocket (STOMP)",
       "notifications": "Firebase FCM (Web Push)",
       "rateLimit": "Bucket4j 8.10.1",
-      "hosting": "Oracle Cloud (Nginx reverse proxy)"
+      "hosting": "Google Cloud Run + Cloud SQL + Cloudflare (musclememory.kr)"
     },
     "frontend": {
-      "framework": "Next.js 14",
+      "framework": "Next.js 16.2.4",
       "language": "TypeScript 5",
       "styling": "Tailwind CSS 4",
       "ui": "shadcn/ui + Base UI",

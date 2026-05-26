@@ -228,12 +228,13 @@
     </div>
   </div>
   <div class="badges">
-    <span class="badge" style="color:#38bdf8;border-color:#38bdf840;background:#38bdf810">Java 21</span>
+    <span class="badge" style="color:#38bdf8;border-color:#38bdf840;background:#38bdf810">Java 17</span>
     <span class="badge" style="color:#4ade80;border-color:#4ade8040;background:#4ade8010">Spring Boot 3.5</span>
-    <span class="badge" style="color:#f8f8f8;border-color:#ffffff30;background:#ffffff10">Next.js 14</span>
+    <span class="badge" style="color:#f8f8f8;border-color:#ffffff30;background:#ffffff10">Next.js 16</span>
     <span class="badge" style="color:#60a5fa;border-color:#60a5fa40;background:#60a5fa10">TypeScript 5</span>
-    <span class="badge" style="color:#a78bfa;border-color:#a78bfa40;background:#a78bfa10">PostgreSQL</span>
-    <span class="badge" style="color:#fb923c;border-color:#fb923c40;background:#fb923c10">Oracle Cloud</span>
+    <span class="badge" style="color:#a78bfa;border-color:#a78bfa40;background:#a78bfa10">MySQL 8.0</span>
+    <span class="badge" style="color:#4285f4;border-color:#4285f440;background:#4285f410">Google Cloud</span>
+    <span class="badge" style="color:#f48024;border-color:#f4802440;background:#f4802410">Cloudflare</span>
     <span class="badge" style="color:#facc15;border-color:#facc1540;background:#facc1510">Firebase FCM</span>
     <span class="badge" style="color:#34d399;border-color:#34d39940;background:#34d39910">WebSocket</span>
     <span class="badge" style="color:#f472b6;border-color:#f472b640;background:#f472b610">JWT</span>
@@ -270,11 +271,11 @@
     <div class="arch-row">
       <div class="arch-box" style="background:#0f1e35;border-color:#1d4ed840;flex:1.2">
         <div class="title" style="color:#60a5fa">🖥️ Admin Web App</div>
-        <div class="desc">Next.js 14 + TypeScript<br>관리자 대시보드, 수업/회원/PT/통계 관리<br>Tailwind CSS · shadcn/ui · Recharts</div>
+        <div class="desc">Next.js 16 + TypeScript<br>관리자 대시보드, 수업/회원/PT/통계 관리<br>Tailwind CSS · shadcn/ui · Recharts</div>
       </div>
       <div class="arch-box" style="background:#0f2318;border-color:#16a34a40;flex:1">
         <div class="title" style="color:#4ade80">📱 Member App (PWA)</div>
-        <div class="desc">Next.js 14 + Service Worker<br>수업 예약, 오늘의 운동, 마이페이지<br>DOMPurify · FCM Push</div>
+        <div class="desc">Next.js 16 + Service Worker<br>수업 예약, 오늘의 운동, 마이페이지<br>DOMPurify · FCM Push</div>
       </div>
     </div>
 
@@ -296,7 +297,7 @@
         <div class="desc">JWT Filter · Role-based Access Control<br>SUPER_ADMIN / STAFF / MEMBER<br>TokenVersion 강제 로그아웃</div>
       </div>
       <div class="arch-box" style="background:#1a1230;border-color:#7c3aed40">
-        <div class="title" style="color:#a78bfa">⚙️ Spring Boot 3.5 (Java 21)</div>
+        <div class="title" style="color:#a78bfa">⚙️ Spring Boot 3.5 (Java 17)</div>
         <div class="desc">29 REST Controllers · 29 Services<br>멀티테넌트: 모든 쿼리에 gym_id 필터<br>Bucket4j Rate Limiting</div>
       </div>
     </div>
@@ -315,8 +316,8 @@
     <!-- Data Layer -->
     <div class="arch-row">
       <div class="arch-box" style="background:#1e1330;border-color:#9333ea40">
-        <div class="title" style="color:#c084fc">🗄️ PostgreSQL</div>
-        <div class="desc">28 Tables · gym_id 컬럼으로 테넌트 격리<br>Flyway 마이그레이션<br>Oracle Cloud Compute 호스팅</div>
+        <div class="title" style="color:#c084fc">🗄️ MySQL 8.0 (Google Cloud SQL)</div>
+        <div class="desc">28 Tables · gym_id 컬럼으로 테넌트 격리<br>Flyway 마이그레이션 · Cloud SQL Auth Proxy<br>Google Cloud Run 호스팅</div>
       </div>
       <div class="arch-box" style="background:#1a1a00;border-color:#ca8a0440">
         <div class="title" style="color:#fbbf24">🔔 Firebase FCM</div>
@@ -391,10 +392,10 @@
   <div class="tech-grid">
     <div class="tech-section">
       <h3>🔧 Backend</h3>
-      <div class="tech-row"><span class="tech-key">Language</span><span class="tech-val">Java 21</span></div>
+      <div class="tech-row"><span class="tech-key">Language</span><span class="tech-val">Java 17</span></div>
       <div class="tech-row"><span class="tech-key">Framework</span><span class="tech-val">Spring Boot 3.5.0</span></div>
       <div class="tech-row"><span class="tech-key">Security</span><span class="tech-val">Spring Security 6 + JWT</span></div>
-      <div class="tech-row"><span class="tech-key">Database</span><span class="tech-val">PostgreSQL + JPA + Flyway</span></div>
+      <div class="tech-row"><span class="tech-key">Database</span><span class="tech-val">MySQL 8.0 (Google Cloud SQL) + JPA + Flyway</span></div>
       <div class="tech-row"><span class="tech-key">Realtime</span><span class="tech-val">WebSocket (STOMP)</span></div>
       <div class="tech-row"><span class="tech-key">Push</span><span class="tech-val">Firebase FCM + VAPID</span></div>
       <div class="tech-row"><span class="tech-key">Rate Limit</span><span class="tech-val">Bucket4j 8.10.1</span></div>
@@ -402,7 +403,7 @@
     </div>
     <div class="tech-section">
       <h3>🎨 Frontend</h3>
-      <div class="tech-row"><span class="tech-key">Framework</span><span class="tech-val">Next.js 14 (App Router)</span></div>
+      <div class="tech-row"><span class="tech-key">Framework</span><span class="tech-val">Next.js 16.2.4 (App Router)</span></div>
       <div class="tech-row"><span class="tech-key">Language</span><span class="tech-val">TypeScript 5</span></div>
       <div class="tech-row"><span class="tech-key">Styling</span><span class="tech-val">Tailwind CSS 4</span></div>
       <div class="tech-row"><span class="tech-key">UI Library</span><span class="tech-val">shadcn/ui + Base UI</span></div>
@@ -413,8 +414,9 @@
     </div>
     <div class="tech-section">
       <h3>☁️ Infrastructure</h3>
-      <div class="tech-row"><span class="tech-key">Cloud</span><span class="tech-val">Oracle Cloud (OCI)</span></div>
-      <div class="tech-row"><span class="tech-key">Reverse Proxy</span><span class="tech-val">Nginx</span></div>
+      <div class="tech-row"><span class="tech-key">Cloud</span><span class="tech-val">Google Cloud Run</span></div>
+      <div class="tech-row"><span class="tech-key">Database</span><span class="tech-val">Google Cloud SQL (MySQL 8.0)</span></div>
+      <div class="tech-row"><span class="tech-key">DNS / CDN</span><span class="tech-val">Cloudflare (musclememory.kr)</span></div>
       <div class="tech-row"><span class="tech-key">Notifications</span><span class="tech-val">Firebase FCM</span></div>
       <div class="tech-row"><span class="tech-key">TLS</span><span class="tech-val">Let's Encrypt / HTTPS</span></div>
       <div class="tech-row"><span class="tech-key">Architecture</span><span class="tech-val">Multi-tenant (gym_id)</span></div>
